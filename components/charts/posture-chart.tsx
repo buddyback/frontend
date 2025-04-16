@@ -65,7 +65,7 @@ export function PostureChart() {
                 </CardHeader>
                 <CardContent className="sm:px-6 px-3">
                     <Tabs defaultValue="daily" className="w-full">
-                        <TabsList className="w-full mb-2 grid grid-cols-4 sm:flex">
+                        <TabsList className="w-full mb-2 grid grid-cols-3 sm:flex">
                             <TabsTrigger value="daily" className="text-xs sm:text-sm">Daily</TabsTrigger>
                             <TabsTrigger value="weekly" className="text-xs sm:text-sm">Weekly</TabsTrigger>
                             <TabsTrigger value="monthly" className="text-xs sm:text-sm">Monthly</TabsTrigger>
