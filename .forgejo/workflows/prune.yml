@@ -1,0 +1,16 @@
+name: Prune Docker Cache
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+  # Optionally add a schedule to run periodically
+  # schedule:
+  #   - cron: '0 0 1 * *'  # Runs at midnight on the 1st of every month
+
+jobs:
+  prune-cache:
+    runs-on: docker
+    container:
+      image: catthehacker/ubuntu:act-latest
+    steps:
+      - name: Prune Docker cache
+        run: docker system prune -af
