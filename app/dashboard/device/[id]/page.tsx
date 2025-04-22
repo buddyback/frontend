@@ -1,3 +1,4 @@
+'use client'
 import {Button} from '@/components/ui/button';
 import Link from 'next/link';
 import React from 'react';
@@ -5,18 +6,14 @@ import {ChevronLeft} from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {DeviceStats} from '@/components/devices/device-stats';
 import {DeviceDetail} from '@/components/devices/device-detail';
-import { PostureChart } from '@/components/charts/posture-chart';
+import {PostureChart} from '@/components/charts/posture-chart';
 
-interface DevicePageParams {
-    params: {
-        id: string
-    }
-}
+import {useParams} from 'next/navigation'
 
+const DevicePage = () => {
 
-const DevicePage = ({params}: DevicePageParams) => {
-
-    const id = params.id
+    const params = useParams<{ id: string }>()
+    const {id} = params
 
     const deviceName = id === "raspberry-pi-1" ? "Living Room" : id === "raspberry-pi-2" ? "Office" : "Bedroom"
 
