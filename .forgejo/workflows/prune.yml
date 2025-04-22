@@ -13,4 +13,4 @@ jobs:
       image: catthehacker/ubuntu:act-latest
     steps:
       - name: Prune Docker cache
-        run: docker system prune -af
+        run: docker builder prune --all --force
