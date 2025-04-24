@@ -25,7 +25,7 @@ const DeviceCard = ({device}: DeviceCardProps) => {
                         {device.name}
                     </CardTitle>
                     <Badge
-                        variant={device.is_active ? "default" : "destructive"}
+                        variant={device.is_active ? "default" : "outline"}
                     >
                         {device.is_active ? "Active" : "Disabled"}
                     </Badge>
@@ -84,7 +84,7 @@ const DeviceCard = ({device}: DeviceCardProps) => {
                             </div>
 
                             <div>
-                                {device.sensitivity}
+                                {device.sensitivity}%
                             </div>
                         </div>
                         <div className={"items-center justify-between w-full"}>
@@ -101,7 +101,7 @@ const DeviceCard = ({device}: DeviceCardProps) => {
                             </div>
 
                             <div>
-                                {device.sensitivity}
+                                {device.vibration_intensity}%
                             </div>
                         </div>
                     </div>

@@ -1,36 +1,45 @@
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
-import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert"
+'use client'
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
-import {AlertTriangle, Info} from "lucide-react"
+import {Device} from "@/interfaces";
+import {dateParser} from "@/utils/date-parser";
+import {Slider} from "@/components/ui/slider";
+import {useState} from "react";
+import {Button} from "@/components/ui/button";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {getDeviceQueryKey, updateDevice} from "@/api/devices";
+import {toast} from "sonner";
+import {Loader2Icon} from "lucide-react";
+import {useSelector} from "react-redux";
+import {RootState} from "@/store";
 
 interface DeviceDetailProps {
-    id: string
+    device: Device;
 }
 
-export function DeviceDetail({id}: DeviceDetailProps) {
+export function DeviceDetail({device}: DeviceDetailProps) {
 
-    const deviceData = {
-        name: id === "raspberry-pi-1" ? "Living Room" : id === "raspberry-pi-2" ? "Office" : "Bedroom",
-        model: "Raspberry Pi 4 Model B",
-        serialNumber: "RP4-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
-        firmwareVersion: "v2.3.1",
-        lastCalibration: "2023-10-15",
-        status: id !== "raspberry-pi-3" ? "online" : "offline",
-        recentAlerts: [
-            {
-                id: 1,
-                type: "warning",
-                message: "Poor posture detected for more than 15 minutes",
-                time: "Today, 10:23 AM",
-            },
-            {
-                id: 2,
-                type: "info",
-                message: "Device calibration recommended",
-                time: "Yesterday, 3:45 PM",
-            },
-        ],
-    }
+    const {username} = useSelector((state: RootState) => state.auth)
+    const queryClient = useQueryClient();
+    const [temDeviceSensitivity, setTemDeviceSensitivity] = useState(device.sensitivity);
+    const [temDeviceVibrationIntensity, setTemDeviceVibrationIntensity] = useState(device.vibration_intensity);
+
+    const updateDeviceSettingsMutation = useMutation({
+        mutationFn: () => updateDevice(device.id, device.name, temDeviceSensitivity, temDeviceVibrationIntensity),
+        onSuccess: async (data) => {
+
+            await queryClient.invalidateQueries({
+                queryKey: getDeviceQueryKey(username, device.id),
+            })
+
+            toast.success("Device settings updated successfully.");
+            setTemDeviceSensitivity(data.sensitivity);
+            setTemDeviceVibrationIntensity(data.vibration_intensity);
+        },
+        onError: (error) => {
+            console.error("Error updating device settings:", error);
+        },
+    })
 
     return (
         <div className="grid gap-4 md:grid-cols-2">
@@ -39,30 +48,84 @@ export function DeviceDetail({id}: DeviceDetailProps) {
                     <CardTitle>Device Information</CardTitle>
                     <CardDescription>Technical details about this device</CardDescription>
                 </CardHeader>
-                <CardContent className="grid gap-2">
-                    <div className="flex justify-between py-1 border-b">
+                <CardContent className="grid gap-4 items-center divide-y">
+                    <div className="flex justify-between py-1 pb-4">
                         <span className="font-medium">Status</span>
                         <Badge
-                            variant={deviceData.status === "online" ? "default" : "secondary"}>{deviceData.status}</Badge>
+                            variant={device.is_active ? "default" : "outline"}>
+                            {device.is_active ? "Active" : "Disabled"}
+                        </Badge>
                     </div>
-                    <div className="flex justify-between py-1 border-b">
-                        <span className="font-medium">Model</span>
-                        <span className="text-muted-foreground">{deviceData.model}</span>
+                    <div className="flex justify-between py-1 pb-4">
+                        <span className="font-medium">ID</span>
+                        <span className="text-muted-foreground">{device.id}</span>
                     </div>
-                    <div className="flex justify-between py-1 border-b">
-                        <span className="font-medium">Serial Number</span>
+                    <div className="flex justify-between py-1 pb-4">
+                        <span className="font-medium">Registration Date</span>
                         <span
-                            className="text-muted-foreground text-xs sm:text-sm truncate ml-2">{deviceData.serialNumber}</span>
+                            className="text-muted-foreground text-xs sm:text-sm truncate ml-2"
+                        >
+                            {dateParser(device.registration_date)}
+                        </span>
                     </div>
-                    <div className="flex justify-between py-1 border-b">
-                        <span className="font-medium">Firmware</span>
-                        <span className="text-muted-foreground">{deviceData.firmwareVersion}</span>
-                    </div>
-                    <div className="flex justify-between py-1">
-                        <span className="font-medium">Last Calibration</span>
-                        <span className="text-muted-foreground">{deviceData.lastCalibration}</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className={"grid gap-2"}>
+                            <div className={"flex items-center justify-between"}>
+                                <span className="font-medium">Sensitivity</span>
+                                <div className="flex items-center">
+                                <span
+                                    className="text-muted-foreground text-xs sm:text-sm truncate ml-2"
+                                >
+                                    {temDeviceSensitivity}%
+                                </span>
+                                </div>
+                            </div>
+                            <Slider
+                                defaultValue={[temDeviceSensitivity]}
+                                max={100}
+                                step={1}
+                                onValueChange={(value) => {
+                                    setTemDeviceSensitivity(value[0]);
+                                }}
+                            />
+                        </div>
+                        <div className={"grid gap-2"}>
+                            <div className={"flex items-center justify-between"}>
+                                <span className="font-medium">Vibration Intensity</span>
+                                <div className="flex items-center">
+                                <span
+                                    className="text-muted-foreground text-xs sm:text-sm truncate ml-2"
+                                >
+                                    {temDeviceVibrationIntensity}%
+                                </span>
+                                </div>
+                            </div>
+                            <Slider
+                                defaultValue={[temDeviceVibrationIntensity]}
+                                max={100}
+                                step={1}
+                                onValueChange={(value) => {
+                                    setTemDeviceVibrationIntensity(value[0]);
+                                }}
+                            />
+                        </div>
                     </div>
                 </CardContent>
+                <CardFooter>
+                    <Button
+                        className={"mt-4"}
+                        disabled={
+                            temDeviceSensitivity === device.sensitivity && temDeviceVibrationIntensity === device.vibration_intensity || updateDeviceSettingsMutation.isPending
+                        }
+                        onClick={() => updateDeviceSettingsMutation.mutate()}
+                    >
+                        {updateDeviceSettingsMutation.isPending ? (
+                            <Loader2Icon
+                                className="mr-2 h-4 w-4 animate-spin"
+                            />
+                        ) : "Save Changes"}
+                    </Button>
+                </CardFooter>
             </Card>
 
             <Card className="w-full">
@@ -71,18 +134,18 @@ export function DeviceDetail({id}: DeviceDetailProps) {
                     <CardDescription>Notifications from this device</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {deviceData.recentAlerts.map((alert) => (
-                        <Alert key={alert.id} variant={alert.type === "warning" ? "destructive" : "default"}>
-                            {alert.type === "warning" ? <AlertTriangle className="h-4 w-4"/> :
-                                <Info className="h-4 w-4"/>}
-                            <AlertTitle
-                                className="ml-2">{alert.type === "warning" ? "Warning" : "Information"}</AlertTitle>
-                            <AlertDescription className="ml-2 flex flex-col">
-                                <span className="text-xs sm:text-sm">{alert.message}</span>
-                                <span className="text-xs text-muted-foreground">{alert.time}</span>
-                            </AlertDescription>
-                        </Alert>
-                    ))}
+                    {/*{deviceData.recentAlerts.map((alert) => (*/}
+                    {/*    <Alert key={alert.id} variant={alert.type === "warning" ? "destructive" : "default"}>*/}
+                    {/*        {alert.type === "warning" ? <AlertTriangle className="h-4 w-4"/> :*/}
+                    {/*            <Info className="h-4 w-4"/>}*/}
+                    {/*        <AlertTitle*/}
+                    {/*            className="ml-2">{alert.type === "warning" ? "Warning" : "Information"}</AlertTitle>*/}
+                    {/*        <AlertDescription className="ml-2 flex flex-col">*/}
+                    {/*            <span className="text-xs sm:text-sm">{alert.message}</span>*/}
+                    {/*            <span className="text-xs text-muted-foreground">{alert.time}</span>*/}
+                    {/*        </AlertDescription>*/}
+                    {/*    </Alert>*/}
+                    {/*))}*/}
                 </CardContent>
             </Card>
         </div>

@@ -9,13 +9,36 @@ import {DeviceDetail} from '@/components/devices/device-detail';
 import {PostureChart} from '@/components/charts/posture-chart';
 
 import {useParams} from 'next/navigation'
+import {useSelector} from "react-redux";
+import {RootState} from "@/store";
+import {useQuery} from "@tanstack/react-query";
+import {Device} from "@/interfaces";
+import {getDevice, getDeviceQueryKey} from "@/api/devices";
 
 const DevicePage = () => {
 
     const params = useParams<{ id: string }>()
     const {id} = params
 
-    const deviceName = id === "raspberry-pi-1" ? "Living Room" : id === "raspberry-pi-2" ? "Office" : "Bedroom"
+    const {username} = useSelector((state: RootState) => state.auth)
+
+    const {
+        data: device,
+        isLoading: isLoadingDevice,
+        isError: isErrorDevice,
+        isSuccess: isSuccessDevice,
+    } = useQuery<Device>({
+        queryKey: getDeviceQueryKey(username, id),
+        queryFn: () => getDevice(id),
+    })
+
+    if (isLoadingDevice) {
+        return <div className="flex items-center justify-center h-screen">Loading...</div>
+    }
+
+    if (isErrorDevice) {
+        return <div className="flex items-center justify-center h-screen">Error loading device</div>
+    }
 
     return (
         <div className="flex min-h-screen flex-col">
@@ -26,7 +49,9 @@ const DevicePage = () => {
                             <ChevronLeft className="h-4 w-4"/>
                         </Button>
                     </Link>
-                    <h2 className="text-3xl font-bold tracking-tight">{deviceName}</h2>
+                    {isSuccessDevice ? (
+                        <h2 className="text-3xl font-bold tracking-tight">{device.name}</h2>
+                    ) : null}
                 </div>
 
                 <DeviceStats/>
@@ -39,7 +64,11 @@ const DevicePage = () => {
                         <TabsTrigger value="settings">Settings</TabsTrigger>
                     </TabsList>
                     <TabsContent value="overview" className="space-y-4">
-                        <DeviceDetail id={id}/>
+                        {isSuccessDevice ? (
+                            <DeviceDetail
+                                device={device}
+                            />
+                        ) : null}
                     </TabsContent>
                     <TabsContent value="statistics" className="space-y-4">
                         <PostureChart/>
