@@ -5,7 +5,13 @@ import {useState} from "react"
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,} from "@/components/ui/dialog"
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {useMutation, useQueryClient} from "@tanstack/react-query"
+import {claimDevice, getDevicesQueryKey} from "@/api/devices";
+import {toast} from "sonner";
+import {Button} from "@/components/ui/button";
+import {Loader2Icon} from "lucide-react";
+import {useSelector} from "react-redux";
+import {RootState} from "@/store";
 
 interface AddDeviceFormProps {
     open: boolean
@@ -13,23 +19,34 @@ interface AddDeviceFormProps {
 }
 
 export function AddDeviceForm({open, action}: AddDeviceFormProps) {
-    const [deviceName, setDeviceName] = useState("")
-    const [deviceType, setDeviceType] = useState("")
-    const [deviceLocation, setDeviceLocation] = useState("")
-    const [deviceId, setDeviceId] = useState("")
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const {username} = useSelector((state: RootState) => state.auth)
+    const queryClient = useQueryClient()
+
+    const emptyDeviceData = {
+        name: "",
+        id: "",
+    }
+    const [newDeviceData, setNewDeviceData] = useState(emptyDeviceData)
+
+    const claimDeviceMutation = useMutation({
+        mutationFn: () => claimDevice(newDeviceData.id, newDeviceData.name),
+        onSuccess: async () => {
+            toast.success("Device added successfully")
+            await queryClient.invalidateQueries({
+                queryKey: getDevicesQueryKey(username),
+            })
+            setNewDeviceData(emptyDeviceData)
+            action(false);
+        },
+        onError: () => {
+            toast.error("An error occurred")
+        },
+    });
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-
-        // Simulate API call
-        setTimeout(() => {
-            // Reset form
-            setDeviceName("")
-            setDeviceType("")
-            setDeviceLocation("")
-            setDeviceId("")
-            action(false)
-        }, 1500)
+        claimDeviceMutation.mutate()
     }
 
     return (
@@ -39,53 +56,23 @@ export function AddDeviceForm({open, action}: AddDeviceFormProps) {
                     <DialogHeader>
                         <DialogTitle>Add New Device</DialogTitle>
                         <DialogDescription>
-                            Connect a new Raspberry Pi device to monitor your posture.
+                            Connect a new device to monitor your posture.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-4">
-                        <div className="space-y-4">
+                        <div className="grid gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="device-name">Device Name</Label>
                                 <Input
                                     id="device-name"
                                     placeholder="Living Room, Office, etc."
-                                    value={deviceName}
-                                    onChange={(e) => setDeviceName(e.target.value)}
+                                    value={newDeviceData.name}
+                                    onChange={(e) => setNewDeviceData({
+                                        ...newDeviceData,
+                                        name: e.target.value
+                                    })}
                                     required
                                 />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="device-type">Device Type</Label>
-                                <Select
-                                    value={deviceType}
-                                    onValueChange={setDeviceType}
-                                    required
-                                >
-                                    <SelectTrigger id="device-type" className={"w-full"}>
-                                        <SelectValue placeholder="Select device type"/>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="raspberry-pi-4">Raspberry Pi 4</SelectItem>
-                                        <SelectItem value="raspberry-pi-3">Raspberry Pi 3</SelectItem>
-                                        <SelectItem value="raspberry-pi-zero">Raspberry Pi Zero</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="device-location">Location</Label>
-                                <Select value={deviceLocation} onValueChange={setDeviceLocation} required>
-                                    <SelectTrigger id="device-location" className={"w-full"}>
-                                        <SelectValue placeholder="Select location"/>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="home">Home</SelectItem>
-                                        <SelectItem value="office">Office</SelectItem>
-                                        <SelectItem value="school">School</SelectItem>
-                                        <SelectItem value="other">Other</SelectItem>
-                                    </SelectContent>
-                                </Select>
                             </div>
 
                             <div className="space-y-2">
@@ -94,8 +81,11 @@ export function AddDeviceForm({open, action}: AddDeviceFormProps) {
                                     <Input
                                         id="device-id"
                                         placeholder="Enter device ID"
-                                        value={deviceId}
-                                        onChange={(e) => setDeviceId(e.target.value)}
+                                        value={newDeviceData.id}
+                                        onChange={(e) => setNewDeviceData({
+                                            ...newDeviceData,
+                                            id: e.target.value
+                                        })}
                                         required
                                     />
                                 </div>
@@ -103,6 +93,25 @@ export function AddDeviceForm({open, action}: AddDeviceFormProps) {
                                     You can find the device ID on the bottom of your Raspberry Pi.
                                 </p>
                             </div>
+
+                            <Button
+                                className={"cursor-pointer w-full mt-4"}
+                                type="submit"
+                                disabled={claimDeviceMutation.isPending}
+                            >
+                                {claimDeviceMutation.isPending ? (
+                                    <div
+                                        className={"flex items-center justify-center"}
+                                    >
+                                        <Loader2Icon
+                                            className={"animate-spin text-center"}
+                                            size={20}
+                                        />
+                                        <span className="ml-2">Adding device</span>
+                                    </div>
+
+                                ) : "Add Device"}
+                            </Button>
                         </div>
                     </div>
                 </form>
