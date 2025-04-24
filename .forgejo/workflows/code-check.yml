@@ -1,0 +1,36 @@
+name: Code Check
+
+on:
+  pull_request:
+    branches: [ "main", "devel" ]
+  push:
+    branches: [ "main", "devel" ]
+
+jobs:
+  code-check:
+    name: code-check
+    runs-on: docker
+    container:
+      image: catthehacker/ubuntu:act-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Run linting
+        run: npm run lint
+
+      # Only trigger the build workflow if this is a push to main branch and all checks pass
+      - name: Trigger build workflow
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && success() }}
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.FORGEJO_TOKEN }}" \
+            -H "Accept: application/json" \
+            -H "Content-Type: application/json" \
+            "${{ github.server_url }}/api/v1/repos/${{ github.repository }}/actions/workflows/main.yml/dispatches" \
+            -d '{"ref":"main"}'

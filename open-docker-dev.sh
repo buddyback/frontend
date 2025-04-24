@@ -1,0 +1,1 @@
+docker run --rm -it -v ./:/app --entrypoint /bin/bash --network host node:lts
