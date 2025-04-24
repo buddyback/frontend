@@ -37,7 +37,7 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
             const res = await djangoInstance.get("/auth/users/me/");
             if (res.status === 200) {
                 setUser(res.data);
-                dispatch(reduxLogin({ username: res.data.username }));
+                dispatch(reduxLogin({ username: res.data.username, email: res.data.email }));
             }
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
