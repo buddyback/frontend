@@ -7,7 +7,7 @@ export default function Home() {
             <div
                 className={"min-h-screen flex flex-col items-center justify-center"}
             >
-                <div className={"w-3/5"}>
+                <div className={"md:w-3/5"}>
                     <LoginForm/>
                 </div>
             </div>

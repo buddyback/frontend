@@ -2,26 +2,22 @@
 
 import type React from "react"
 import {useState} from "react"
-import {useRouter} from "next/navigation"
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card"
+import {useAuth} from "@/providers/auth-provider";
 
 export function LoginForm() {
-    const [isLoading, setIsLoading] = useState<boolean>(false)
-    const router = useRouter()
 
-    async function onSubmit(event: React.FormEvent) {
-        event.preventDefault()
-        setIsLoading(true)
+    const {login, loading} = useAuth();
+    const [loginData, setLoginData] = useState({username: "", password: ""});
 
-        setTimeout(() => {
-            setIsLoading(false)
-            router.push("/dashboard")
-        }, 1000)
-    }
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        login(loginData.username, loginData.password);
+    };
 
     return (
         <div className={"grid gap-10"}>
@@ -42,28 +38,37 @@ export function LoginForm() {
                             <CardTitle>Login</CardTitle>
                             <CardDescription>Enter your credentials to access your account</CardDescription>
                         </CardHeader>
-                        <form onSubmit={onSubmit}>
+                        <form onSubmit={handleSubmit}>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input id="email" type="email" placeholder="name@example.com" required/>
+                                    <Label htmlFor="username">Username</Label>
+                                    <Input
+                                        id="username"
+                                        type="text"
+                                        placeholder="username"
+                                        required
+                                        onChange={(e) => setLoginData({...loginData, username: e.target.value})}
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
                                         <Label htmlFor="password">Password</Label>
-                                        <a href="#" className="text-xs text-muted-foreground hover:text-primary">
-                                            Forgot password?
-                                        </a>
                                     </div>
-                                    <Input id="password" type="password" required/>
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        placeholder="password"
+                                        required
+                                        onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                                    />
                                 </div>
                             </CardContent>
                             <CardFooter
                                 className={"mt-10"}
                             >
                                 <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700"
-                                        disabled={isLoading}>
-                                    {isLoading ? "Logging in..." : "Login"}
+                                        disabled={loading}>
+                                    {loading ? "Logging in..." : "Login"}
                                 </Button>
                             </CardFooter>
                         </form>
@@ -75,7 +80,8 @@ export function LoginForm() {
                             <CardTitle>Create an account</CardTitle>
                             <CardDescription>Enter your information to create an account</CardDescription>
                         </CardHeader>
-                        <form onSubmit={onSubmit}>
+                        <form onSubmit={() => {
+                        }}>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="name">Name</Label>
@@ -98,8 +104,8 @@ export function LoginForm() {
                                 className={"mt-10"}
                             >
                                 <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700"
-                                        disabled={isLoading}>
-                                    {isLoading ? "Creating account..." : "Create account"}
+                                        disabled={loading}>
+                                    {loading ? "Creating account..." : "Create account"}
                                 </Button>
                             </CardFooter>
                         </form>

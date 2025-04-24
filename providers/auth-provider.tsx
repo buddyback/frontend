@@ -4,6 +4,9 @@ import React, {createContext, useContext, useEffect, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {djangoInstance} from "@/config/axios-config";
 import {useMutation} from "@tanstack/react-query";
+import {login as reduxLogin} from "@/features/authSlice";
+import {logout as reduxLogout} from "@/features/authSlice";
+import {useDispatch} from "react-redux";
 
 // Define types for user data and the mutation variables
 interface User {
@@ -26,6 +29,7 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     const pathname = usePathname()
+    const dispatch = useDispatch();
 
     // Function to fetch user data
     const fetchUser = async () => {
@@ -33,10 +37,12 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
             const res = await djangoInstance.get("/auth/users/me/");
             if (res.status === 200) {
                 setUser(res.data);
+                dispatch(reduxLogin({ username: res.data.username }));
             }
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
             setUser(null);
+            dispatch(reduxLogout());
         }
         setLoading(false);
     };
@@ -64,6 +70,7 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
     const logout = async () => {
         await djangoInstance.post("/auth/logout/", {}, {withCredentials: true});
         setUser(null);
+        dispatch(reduxLogout());
         router.push("/");
     };
 
