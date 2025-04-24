@@ -9,7 +9,7 @@ import {Button} from "@/components/ui/button";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {getDeviceQueryKey, updateDevice} from "@/api/devices";
 import {toast} from "sonner";
-import {Loader2Icon} from "lucide-react";
+import {Loader2Icon, PencilIcon, XIcon} from "lucide-react";
 import {useSelector} from "react-redux";
 import {RootState} from "@/store";
 
@@ -23,9 +23,17 @@ export function DeviceDetail({device}: DeviceDetailProps) {
     const queryClient = useQueryClient();
     const [temDeviceSensitivity, setTemDeviceSensitivity] = useState(device.sensitivity);
     const [temDeviceVibrationIntensity, setTemDeviceVibrationIntensity] = useState(device.vibration_intensity);
+    const [tempDeviceName, setTemDeviceName] = useState(device.name);
+
+    const [isEditingName, setIsEditingName] = useState(false);
 
     const updateDeviceSettingsMutation = useMutation({
-        mutationFn: () => updateDevice(device.id, device.name, temDeviceSensitivity, temDeviceVibrationIntensity),
+        mutationFn: () => updateDevice(
+            device.id,
+            tempDeviceName,
+            temDeviceSensitivity,
+            temDeviceVibrationIntensity
+        ),
         onSuccess: async (data) => {
 
             await queryClient.invalidateQueries({
@@ -49,18 +57,56 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                     <CardDescription>Technical details about this device</CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-4 items-center divide-y">
-                    <div className="flex justify-between py-1 pb-4">
+                    <div className="flex justify-between items-center py-1 pb-4">
+                        <span className="font-medium">Name</span>
+                        {isEditingName ? (
+                            <div
+                                className={"flex items-center justify-center gap-4"}
+                            >
+                                <input
+                                    className={"focus:outline-none"}
+                                    value={tempDeviceName}
+                                    onChange={(e) => {
+                                        setTemDeviceName(e.target.value);
+                                    }}
+                                />
+                                <XIcon
+                                    className={"h-4 w-4 cursor-pointer"}
+                                    onClick={() => {
+                                        setIsEditingName(!isEditingName);
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <div
+                                className={"flex items-center justify-center gap-4"}
+                            >
+                                <div>
+                                    {tempDeviceName}
+                                </div>
+                                <PencilIcon
+                                    className={"h-4 w-4 cursor-pointer"}
+                                    onClick={() => {
+                                        setIsEditingName(!isEditingName);
+                                    }}
+                                />
+                            </div>
+
+                        )}
+
+                    </div>
+                    <div className="flex justify-between items-center py-1 pb-4">
                         <span className="font-medium">Status</span>
                         <Badge
                             variant={device.is_active ? "default" : "outline"}>
                             {device.is_active ? "Active" : "Disabled"}
                         </Badge>
                     </div>
-                    <div className="flex justify-between py-1 pb-4">
+                    <div className="flex justify-between items-center py-1 pb-4">
                         <span className="font-medium">ID</span>
                         <span className="text-muted-foreground">{device.id}</span>
                     </div>
-                    <div className="flex justify-between py-1 pb-4">
+                    <div className="flex justify-between items-center py-1 pb-4">
                         <span className="font-medium">Registration Date</span>
                         <span
                             className="text-muted-foreground text-xs sm:text-sm truncate ml-2"
@@ -115,7 +161,10 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                     <Button
                         className={"mt-4"}
                         disabled={
-                            temDeviceSensitivity === device.sensitivity && temDeviceVibrationIntensity === device.vibration_intensity || updateDeviceSettingsMutation.isPending
+                            temDeviceSensitivity === device.sensitivity
+                            && temDeviceVibrationIntensity === device.vibration_intensity
+                            && tempDeviceName === device.name
+                            || updateDeviceSettingsMutation.isPending
                         }
                         onClick={() => updateDeviceSettingsMutation.mutate()}
                     >
