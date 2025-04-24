@@ -1,9 +1,10 @@
 import React from 'react';
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
-import {Badge} from "@/components/ui/badge";
-import {Battery, ChevronRight, Signal, Wifi} from "lucide-react";
+import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
+import {ChevronRight} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {useRouter} from "next/navigation";
+import {Device} from "@/interfaces";
+import {dateParser} from "@/utils/date-parser";
 
 interface DeviceCardProps {
     device: Device;
@@ -18,24 +19,33 @@ const DeviceCard = ({device}: DeviceCardProps) => {
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                     <CardTitle>{device.name}</CardTitle>
-                    <Badge
-                        variant={device.status === "online" ? "default" : "secondary"}>{device.status}</Badge>
                 </div>
-                <CardDescription>Raspberry Pi Device</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="flex items-center">
-                        <Battery className="mr-1 h-4 w-4 text-muted-foreground"/>
-                        <span>{device.battery}%</span>
-                    </div>
-                    <div className="flex items-center">
-                        <Signal className="mr-1 h-4 w-4 text-muted-foreground"/>
-                        <span>{device.signal}</span>
+                <div className="grid grid-cols-2 gap-8 text-sm">
+                    <div className="col-span-2 flex items-center">
+                        <div className={"grid items-center justify-between w-full"}>
+                            <div
+                                className={"font-semibold"}
+                            >
+                                Device ID
+                            </div>
+                            <div>
+                                {device.id}
+                            </div>
+                        </div>
                     </div>
                     <div className="col-span-2 flex items-center">
-                        <Wifi className="mr-1 h-4 w-4 text-muted-foreground"/>
-                        <span>Last sync: {device.lastSync}</span>
+                        <div className={"items-center justify-between w-full"}>
+                            <div
+                                className={"font-semibold"}
+                            >
+                                Registration Date:
+                            </div>
+                            <div>
+                                {dateParser(device.registration_date)}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </CardContent>
@@ -43,7 +53,7 @@ const DeviceCard = ({device}: DeviceCardProps) => {
                 <Button
                     variant={"outline"}
                     className="w-full justify-between cursor-pointer"
-                    onClick={() => router.push(`/dashboard/device/${device.id}`)}
+                    onClick={() => router.push(`/dashboard/devices/${device.id}`)}
                 >
                     View Details
                     <ChevronRight className="h-4 w-4"/>

@@ -1,12 +1,17 @@
+import React from "react";
+
 interface ReactNodeChildrenProp {
     children: React.ReactNode;
 }
 
-interface Device {
+export interface Device {
     id: string;
+    user: number;
+    user_username: string;
     name: string;
-    status: "online" | "offline";
-    battery: number;
-    lastSync: string;
-    signal: "strong" | "medium" | "weak";
+    registration_date: string; // ISO 8601 format
+    is_active: boolean;
+    sensitivity: number;
+    vibration_intensity: number;
+    api_key: string;
 }
