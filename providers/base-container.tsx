@@ -1,4 +1,5 @@
 import React from 'react';
+import {ReactNodeChildrenProp} from "@/interfaces";
 
 
 const BaseContainer = ({children}: ReactNodeChildrenProp) => {
