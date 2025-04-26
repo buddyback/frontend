@@ -71,7 +71,9 @@ const DevicePage = () => {
                         ) : null}
                     </TabsContent>
                     <TabsContent value="statistics" className="space-y-4">
-                        <PostureChart/>
+                        <PostureChart
+                            deviceId={id}
+                        />
                     </TabsContent>
                     <TabsContent value="settings" className="space-y-4">
                         {/*<DeviceSettings id={id}/>*/}

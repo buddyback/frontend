@@ -15,3 +15,17 @@ export interface Device {
     vibration_intensity: number;
     api_key: string;
 }
+
+export interface PostureRecord {
+    device: string;
+    timestamp: string; // ISO 8601 format
+    overall_score: number;
+    components: Component[];
+}
+
+export interface Component {
+    component_type: string;
+    is_correct: boolean;
+    score: number;
+    correction: string;
+}
