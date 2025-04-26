@@ -7,6 +7,7 @@ import {useMutation} from "@tanstack/react-query";
 import {login as reduxLogin} from "@/features/authSlice";
 import {logout as reduxLogout} from "@/features/authSlice";
 import {useDispatch} from "react-redux";
+import {toast} from "sonner";
 
 // Define types for user data and the mutation variables
 interface User {
@@ -58,6 +59,7 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
         },
         onError: () => {
             setUser(null);
+            toast.error("Invalid username or password");
         }
     });
 

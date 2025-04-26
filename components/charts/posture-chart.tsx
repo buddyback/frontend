@@ -109,6 +109,7 @@ export function PostureChart({deviceId}: PostureChartProps) {
         data: postureData,
         isLoading: isLoadingPostureData,
         isError: isErrorPostureData,
+        isSuccess: isPosturePostureData,
     } = useQuery<PostureRecord[]>({
         queryKey: [...getPostureDataQuery(username, deviceId), dateParams],
         queryFn: () => getPostureData(deviceId, dateParams),
@@ -274,19 +275,6 @@ export function PostureChart({deviceId}: PostureChartProps) {
         }))
     }
 
-    // Loading, error, and empty state handling
-    if (isLoadingPostureData) {
-        return <div className="flex items-center justify-center h-screen">Loading...</div>
-    }
-
-    if (isErrorPostureData) {
-        return <div className="flex items-center justify-center h-screen">Error loading posture data</div>
-    }
-
-    if (!postureData || postureData.length === 0) {
-        return <div className="flex items-center justify-center h-screen">No posture data available</div>
-    }
-
     // Line toggle checkboxes component
     const LineToggles = () => (
         <div className="flex flex-wrap gap-3 mb-4 justify-center sm:justify-start">
@@ -419,17 +407,29 @@ export function PostureChart({deviceId}: PostureChartProps) {
                             <LineToggles/>
                         </div>
 
-                        <TabsContent value="daily">
-                            {renderChart()}
-                        </TabsContent>
+                        {isLoadingPostureData ? (
+                            <div className="flex items-center justify-center h-32">
+                                <p className="text-sm text-muted-foreground">Loading data...</p>
+                            </div>
+                        ) : isErrorPostureData ? (
+                            <div className="flex items-center justify-center h-32">
+                                <p className="text-sm text-red-500">Error loading data</p>
+                            </div>
+                        ) : isPosturePostureData ? (
+                            <div>
+                                <TabsContent value="daily">
+                                    {renderChart()}
+                                </TabsContent>
 
-                        <TabsContent value="weekly">
-                            {renderChart()}
-                        </TabsContent>
+                                <TabsContent value="weekly">
+                                    {renderChart()}
+                                </TabsContent>
 
-                        <TabsContent value="monthly">
-                            {renderChart()}
-                        </TabsContent>
+                                <TabsContent value="monthly">
+                                    {renderChart()}
+                                </TabsContent>
+                            </div>
+                        ) : null}
                     </Tabs>
                 </CardContent>
             </Card>
