@@ -3,17 +3,31 @@
 import {useMemo, useState} from "react"
 import {useSelector} from "react-redux"
 import {useQuery} from "@tanstack/react-query"
-import {format, formatISO, startOfDay, subDays, subWeeks} from "date-fns"
-import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine} from "recharts"
+import {formatISO, startOfDay, subDays, subWeeks} from "date-fns"
+import {
+    CartesianGrid,
+    Legend,
+    Line,
+    LineChart,
+    ReferenceLine,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis
+} from "recharts"
 
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {Checkbox} from "@/components/ui/checkbox"
 import {Label} from "@/components/ui/label"
-import {getPostureData, getPostureDataQuery} from "@/api/posture-data"
-import {PostureRecord} from "@/interfaces"
 import {RootState} from "@/store"
 import {ChartConfig} from "../ui/chart"
+import {
+    getDailyPostureData,
+    getDailyPostureDataQuery, getMonthlyPostureData,
+    getMonthlyPostureDataQuery, getWeeklyPostureData,
+    getWeeklyPostureDataQuery
+} from "@/api/posture-data";
 
 // Chart configuration
 const chartConfig: ChartConfig = {
@@ -58,6 +72,14 @@ type VisibleLines = {
     torso: boolean;
     shoulders: boolean;
 }
+
+type ComputedPostureData = {
+    time_marker: string;
+    overall: number;
+    neck: number;
+    torso: number;
+    shoulders: number;
+};
 
 type TimeRange = "daily" | "weekly" | "monthly"
 
@@ -116,163 +138,65 @@ export function PostureChart({deviceId}: PostureChartProps) {
         data: postureData,
         isLoading: isLoadingPostureData,
         isError: isErrorPostureData,
-        isSuccess: isPosturePostureData,
-    } = useQuery<PostureRecord[]>({
-        queryKey: [...getPostureDataQuery(username, deviceId), dateParams],
-        queryFn: () => getPostureData(deviceId, dateParams),
-    })
+        isSuccess: isPosturePostureData
+    } = useQuery<ComputedPostureData[]>({
+        queryKey: [
+            ...(activeTab === "daily"
+                ? getDailyPostureDataQuery(username, deviceId)
+                : activeTab === "weekly"
+                    ? getWeeklyPostureDataQuery(username, deviceId)
+                    : getMonthlyPostureDataQuery(username, deviceId)),
+            dateParams
+        ],
+        queryFn: () => {
+            if (activeTab === "daily") {
+                return getDailyPostureData(deviceId, dateParams);
+            } else if (activeTab === "weekly") {
+                return getWeeklyPostureData(deviceId, dateParams);
+            } else {
+                return getMonthlyPostureData(deviceId, dateParams);
+            }
+        },
+    });
+
 
     // Process data for different time periods
     const {chartData} = useMemo(() => {
         if (!postureData?.length) {
-            return {chartData: []}
+            return {chartData: []};
         }
 
-        // Sort data by timestamp
-        const sortedData = [...postureData].sort((a, b) =>
-            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-        )
-
-        let chartData: ChartDataPoint[] = []
-
-        if (activeTab === "daily") {
-            // Format data for daily view - hourly intervals
-            chartData = sortedData.map(record => {
-                const time = format(new Date(record.timestamp), 'HH:mm')
-                const neckScore = record.components.find(c => c.component_type === "neck")?.score || 0
-                const torsoScore = record.components.find(c => c.component_type === "torso")?.score || 0
-                const shouldersScore = record.components.find(c => c.component_type === "shoulders")?.score || 0
-
+        const formattedData: ChartDataPoint[] = postureData.map((item) => {
+            if (activeTab === "daily") {
                 return {
-                    time,
-                    overall: record.overall_score,
-                    neck: neckScore,
-                    torso: torsoScore,
-                    shoulders: shouldersScore
-                }
-            })
-        } else if (activeTab === "weekly") {
-            // Group by day for weekly view
-            const dailyGroups = new Map<string, PostureRecord[]>()
-
-            sortedData.forEach(record => {
-                const date = new Date(record.timestamp)
-                const day = format(date, 'EEE')
-
-                if (!dailyGroups.has(day)) {
-                    dailyGroups.set(day, [])
-                }
-
-                dailyGroups.get(day)?.push(record)
-            })
-
-            // Process each day's data
-            chartData = Array.from(dailyGroups.entries()).map(([day, records]) => {
-                const averageOverall = Math.round(
-                    records.reduce((sum, record) => sum + record.overall_score, 0) / records.length
-                )
-
-                const neckScores = records.map(record =>
-                    record.components.find(c => c.component_type === "neck")?.score || 0
-                )
-                const torsoScores = records.map(record =>
-                    record.components.find(c => c.component_type === "torso")?.score || 0
-                )
-                const shouldersScores = records.map(record =>
-                    record.components.find(c => c.component_type === "shoulders")?.score || 0
-                )
-
-                const avgNeck = Math.round(neckScores.reduce((sum, score) => sum + score, 0) / neckScores.length)
-                const avgTorso = Math.round(torsoScores.reduce((sum, score) => sum + score, 0) / torsoScores.length)
-                const avgShoulders = Math.round(shouldersScores.reduce((sum, score) => sum + score, 0) / shouldersScores.length)
-
+                    time: item.time_marker,
+                    overall: item.overall,
+                    neck: item.neck,
+                    torso: item.torso,
+                    shoulders: item.shoulders
+                };
+            } else if (activeTab === "weekly") {
                 return {
-                    day,
-                    overall: averageOverall,
-                    neck: avgNeck,
-                    torso: avgTorso,
-                    shoulders: avgShoulders
-                }
-            })
-
-            // Ensure days are in correct order (Mon-Sun)
-            const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-            chartData.sort((a, b) => {
-                if (a.day && b.day) {
-                    return dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day)
-                }
-                return 0
-            })
-        } else {
-            // Group by week for monthly view
-            const now = new Date()
-            const weekBuckets: { label: string; startDate: Date; endDate: Date; records: PostureRecord[] }[] = []
-
-            for (let i = 0; i < 4; i++) {
-                const startDate = subWeeks(new Date(now), 4 - i)
-                const endDate = i === 3 ? new Date(now) : subWeeks(new Date(now), 3 - i)
-                weekBuckets.push({
-                    label: `Week ${i + 1}`,
-                    startDate,
-                    endDate,
-                    records: [] as PostureRecord[]
-                })
+                    day: item.time_marker,
+                    overall: item.overall,
+                    neck: item.neck,
+                    torso: item.torso,
+                    shoulders: item.shoulders
+                };
+            } else {
+                return {
+                    week: item.time_marker,
+                    overall: item.overall,
+                    neck: item.neck,
+                    torso: item.torso,
+                    shoulders: item.shoulders
+                };
             }
+        });
 
-            // Assign records to appropriate week buckets
-            sortedData.forEach(record => {
-                const recordDate = new Date(record.timestamp)
+        return {chartData: formattedData};
+    }, [postureData, activeTab]);
 
-                for (const bucket of weekBuckets) {
-                    if (recordDate >= bucket.startDate && recordDate <= bucket.endDate) {
-                        bucket.records.push(record)
-                        break
-                    }
-                }
-            })
-
-            // Calculate averages for each week
-            chartData = weekBuckets.map(bucket => {
-                if (bucket.records.length === 0) {
-                    return {
-                        week: bucket.label,
-                        overall: 0,
-                        neck: 0,
-                        torso: 0,
-                        shoulders: 0
-                    }
-                }
-
-                const averageOverall = Math.round(
-                    bucket.records.reduce((sum, record) => sum + record.overall_score, 0) / bucket.records.length
-                )
-
-                const neckScores = bucket.records.map(record =>
-                    record.components.find(c => c.component_type === "neck")?.score || 0
-                )
-                const torsoScores = bucket.records.map(record =>
-                    record.components.find(c => c.component_type === "torso")?.score || 0
-                )
-                const shouldersScores = bucket.records.map(record =>
-                    record.components.find(c => c.component_type === "shoulders")?.score || 0
-                )
-
-                const avgNeck = Math.round(neckScores.reduce((sum, score) => sum + score, 0) / neckScores.length)
-                const avgTorso = Math.round(torsoScores.reduce((sum, score) => sum + score, 0) / torsoScores.length)
-                const avgShoulders = Math.round(shouldersScores.reduce((sum, score) => sum + score, 0) / shouldersScores.length)
-
-                return {
-                    week: bucket.label,
-                    overall: averageOverall,
-                    neck: avgNeck,
-                    torso: avgTorso,
-                    shoulders: avgShoulders
-                }
-            })
-        }
-
-        return {chartData}
-    }, [postureData, activeTab])
 
     // Toggle line visibility
     const toggleLineVisibility = (line: keyof VisibleLines) => {
