@@ -4,7 +4,7 @@ import {useMemo, useState} from "react"
 import {useSelector} from "react-redux"
 import {useQuery} from "@tanstack/react-query"
 import {format, formatISO, startOfDay, subDays, subWeeks} from "date-fns"
-import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts"
+import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine} from "recharts"
 
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
@@ -33,6 +33,12 @@ const chartConfig: ChartConfig = {
         label: "Shoulders",
         color: "#f59e0b",
     }
+}
+
+// Threshold configuration
+const thresholdConfig = {
+    label: "Threshold",
+    color: "#dc2626",
 }
 
 // Types for the chart data
@@ -68,6 +74,7 @@ interface PostureChartProps {
 export function PostureChart({deviceId}: PostureChartProps) {
     const {username} = useSelector((state: RootState) => state.auth)
     const [activeTab, setActiveTab] = useState<TimeRange>("daily")
+    const thresholdValue = 75 // Set threshold value to 75
 
     // State to track which lines to display
     const [visibleLines, setVisibleLines] = useState<VisibleLines>({
@@ -333,8 +340,25 @@ export function PostureChart({deviceId}: PostureChartProps) {
                         <Tooltip
                             contentStyle={{fontSize: '12px'}}
                             itemStyle={{fontSize: '12px'}}
+                            formatter={(value, name) => {
+                                return [value, name];
+                            }}
                         />
                         <Legend wrapperStyle={{fontSize: '10px', marginTop: '10px'}}/>
+
+                        {/* Add threshold line */}
+                        <ReferenceLine
+                            y={thresholdValue}
+                            stroke={thresholdConfig.color}
+                            strokeWidth={2}
+                            strokeDasharray="5 5"
+                            label={{
+                                value: "Threshold (75)",
+                                position: "insideTopRight",
+                                fill: thresholdConfig.color,
+                                fontSize: 10
+                            }}
+                        />
 
                         {visibleLines.overall && (
                             <Line
