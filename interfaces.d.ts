@@ -29,3 +29,40 @@ export interface Component {
     score: number;
     correction: string;
 }
+
+export interface DeviceStatistics {
+    device_id: string;
+    device_name: string;
+    active_session: ActiveSession;
+    summary: Summary;
+    current_period: CurrentPeriod;
+    comparisons: Comparisons;
+}
+
+export interface ActiveSession {
+    start_time: string; // ISO 8601 format
+    current_duration_seconds: number;
+}
+
+export interface Summary {
+    average_session_seconds: number;
+    total_sessions: number;
+    total_seconds: number;
+    consistency_score: number;
+    current_streak_days: number;
+}
+
+export interface CurrentPeriod {
+    today_seconds: number;
+    today_sessions: number;
+    this_week_seconds: number;
+    this_week_sessions: number;
+    this_month_seconds: number;
+    this_month_sessions: number;
+}
+
+export interface Comparisons {
+    day_change_percent: number;
+    week_change_percent: number;
+    month_change_percent: number;
+}

@@ -54,7 +54,13 @@ const DevicePage = () => {
                     ) : null}
                 </div>
 
-                <DeviceStats/>
+                {isSuccessDevice ? (
+                    <DeviceStats
+                        device={device}
+                    />
+                ): null}
+
+
                 <Tabs defaultValue="overview" className="space-y-4">
                     <TabsList
                         className={"w-full"}
