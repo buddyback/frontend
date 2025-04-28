@@ -42,7 +42,7 @@ const DevicePage = () => {
 
     return (
         <div className="flex min-h-screen flex-col">
-            <div className="container grid gap-10">
+            <div className="grid gap-10">
                 <div className="flex items-center gap-2">
                     <Link href="/dashboard">
                         <Button variant="ghost" size="icon">
