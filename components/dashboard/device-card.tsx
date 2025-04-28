@@ -25,9 +25,22 @@ const DeviceCard = ({device}: DeviceCardProps) => {
                         {device.name}
                     </CardTitle>
                     <Badge
-                        variant={device.is_active ? "default" : "outline"}
+                        variant={"outline"}
                     >
-                        {device.is_active ? "Active" : "Disabled"}
+                        {device.has_active_session ? (
+                            <div>
+                                <div className="flex items-center">
+                                    <div
+                                        className={"mr-2 h-2 w-2 animate-pulse rounded-full bg-red-500"}
+                                    />
+                                    <div
+                                        className={"font-semibold"}
+                                    >
+                                        Active Session
+                                    </div>
+                                </div>
+                            </div>
+                        ) : "Disabled"}
                     </Badge>
                 </div>
             </CardHeader>

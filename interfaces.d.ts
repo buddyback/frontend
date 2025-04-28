@@ -14,6 +14,7 @@ export interface Device {
     sensitivity: number;
     vibration_intensity: number;
     api_key: string;
+    has_active_session: boolean;
 }
 
 export interface PostureRecord {

@@ -141,9 +141,14 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                                 <Button
                                     disabled={handleSessionMutation.isPending}
                                     onClick={() => handleSessionMutation.mutate(deviceSession.session_active)}
-                                    variant={deviceSession.session_active ? "destructive" : "default"}
+                                    variant={deviceSession.session_active ? "outline" : "default"}
                                 >
-                                    {deviceSession.session_active ? "Stop Session" : "Start Session"}
+                                    {deviceSession.session_active ? (
+                                        <div className={"flex items-center"}>
+                                            <div className={"bg-red-500 rounded-full w-3 h-3 mr-2 animate-pulse"}/>
+                                            Stop Session
+                                        </div>
+                                    ) : "Start Session"}
                                 </Button>
                             </div>
                         ) : null}
