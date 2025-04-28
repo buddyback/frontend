@@ -66,3 +66,7 @@ export interface Comparisons {
     week_change_percent: number;
     month_change_percent: number;
 }
+
+export interface DeviceSession {
+    session_active: boolean;
+}

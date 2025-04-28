@@ -1,17 +1,38 @@
 'use client'
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
-import {Device} from "@/interfaces";
+import {Device, DeviceSession} from "@/interfaces";
 import {dateParser} from "@/utils/date-parser";
 import {Slider} from "@/components/ui/slider";
 import {useState} from "react";
 import {Button} from "@/components/ui/button";
-import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {getDeviceQueryKey, updateDevice} from "@/api/devices";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {getDeviceQueryKey, getDevicesQueryKey, unclaimDevice, updateDevice} from "@/api/devices";
 import {toast} from "sonner";
 import {Loader2Icon, PencilIcon, XIcon} from "lucide-react";
 import {useSelector} from "react-redux";
 import {RootState} from "@/store";
+import {
+    getDeviceSessionStatus,
+    getDeviceSessionStatusQueryKey,
+    startDeviceSession,
+    stopDeviceSession
+} from "@/api/device-sessions";
+import {getDeviceStatisticsQueryKey} from "@/api/statistics";
+
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import {useRouter} from "next/navigation";
+
 
 interface DeviceDetailProps {
     device: Device;
@@ -19,6 +40,7 @@ interface DeviceDetailProps {
 
 export function DeviceDetail({device}: DeviceDetailProps) {
 
+    const router = useRouter();
     const {username} = useSelector((state: RootState) => state.auth)
     const queryClient = useQueryClient();
     const [temDeviceSensitivity, setTemDeviceSensitivity] = useState(device.sensitivity);
@@ -49,8 +71,137 @@ export function DeviceDetail({device}: DeviceDetailProps) {
         },
     })
 
+    const {
+        data: deviceSession,
+        isLoading: isLoadingDeviceSession,
+        isError: isErrorDeviceSession,
+        isSuccess: isSuccessDeviceSession,
+    } = useQuery<DeviceSession>({
+        queryKey: getDeviceSessionStatusQueryKey(username, device.id),
+        queryFn: () => getDeviceSessionStatus(device.id),
+    })
+
+    const handleSessionMutation = useMutation({
+        mutationFn: (session_active: boolean) => {
+            if (session_active)
+                return stopDeviceSession(device.id);
+            else
+                return startDeviceSession(device.id);
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: getDeviceSessionStatusQueryKey(username, device.id),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: getDeviceStatisticsQueryKey(username, device.id),
+            })
+        },
+        onError: (error) => {
+            console.error("Error updating device session:", error);
+        },
+    })
+
+    const handleRemoveDeviceMutation = useMutation({
+        mutationFn: () => unclaimDevice(device.id),
+        onSuccess: async () => {
+            router.push(`/dashboard`);
+            await queryClient.invalidateQueries({
+                queryKey: getDevicesQueryKey(username),
+            })
+            toast.success("Device removed successfully.");
+        },
+    })
+
     return (
         <div className="grid gap-4 md:grid-cols-2">
+            <div className="flex flex-col items-center gap-2">
+                <Card className="w-full flex-1 flex flex-col justify-between">
+                    <CardHeader>
+                        <CardTitle>
+                            Device Handler
+                        </CardTitle>
+                        <CardDescription>
+                            This device is registered to your account. You start using it by clicking the button below.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {isLoadingDeviceSession ? (
+                            <div>
+                                <Loader2Icon className="mr-2 h-4 w-4 animate-spin"/>
+                            </div>
+                        ) : null}
+                        {isErrorDeviceSession ? (
+                            <div>
+                                <p className="text-red-500">Error fetching device session status.</p>
+                            </div>
+                        ) : null}
+
+                        {isSuccessDeviceSession ? (
+                            <div className="grid gap-4">
+                                <Button
+                                    disabled={handleSessionMutation.isPending}
+                                    onClick={() => handleSessionMutation.mutate(deviceSession.session_active)}
+                                    variant={deviceSession.session_active ? "destructive" : "default"}
+                                >
+                                    {deviceSession.session_active ? "Stop Session" : "Start Session"}
+                                </Button>
+                            </div>
+                        ) : null}
+                    </CardContent>
+                </Card>
+                <Card className="w-full flex-1 flex flex-col justify-between">
+                    <CardHeader>
+                        <CardTitle>
+                            Remove Device
+                        </CardTitle>
+                        <CardDescription>
+                            This device is registered to your account. You can remove it by clicking the button below.
+                            Once removed, you will not be able to use it until you register it again.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <AlertDialog>
+                            <AlertDialogTrigger
+                                className={"w-full"}
+                                asChild
+                            >
+                                <Button
+                                    variant={"destructive"}
+                                    className="w-full"
+                                    disabled={handleRemoveDeviceMutation.isPending}
+                                >
+                                    Remove Device
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Once you remove this device, you will not be able to use it until you register
+                                        it again and
+                                        all of your data will be lost. This action cannot be undone.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        disabled={handleRemoveDeviceMutation.isPending}
+                                        className={"bg-destructive hover:bg-destructive/90"}
+                                        onClick={() => handleRemoveDeviceMutation.mutate()}
+                                    >
+                                        {handleRemoveDeviceMutation.isPending ? (
+                                            <Loader2Icon
+                                                className="h-4 w-4 animate-spin"
+                                            />
+                                        ) : "Remove Device"}
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+
+                    </CardContent>
+                </Card>
+            </div>
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Device Information</CardTitle>
@@ -175,27 +326,6 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                         ) : "Save Changes"}
                     </Button>
                 </CardFooter>
-            </Card>
-
-            <Card className="w-full">
-                <CardHeader>
-                    <CardTitle>Recent Alerts</CardTitle>
-                    <CardDescription>Notifications from this device</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {/*{deviceData.recentAlerts.map((alert) => (*/}
-                    {/*    <Alert key={alert.id} variant={alert.type === "warning" ? "destructive" : "default"}>*/}
-                    {/*        {alert.type === "warning" ? <AlertTriangle className="h-4 w-4"/> :*/}
-                    {/*            <Info className="h-4 w-4"/>}*/}
-                    {/*        <AlertTitle*/}
-                    {/*            className="ml-2">{alert.type === "warning" ? "Warning" : "Information"}</AlertTitle>*/}
-                    {/*        <AlertDescription className="ml-2 flex flex-col">*/}
-                    {/*            <span className="text-xs sm:text-sm">{alert.message}</span>*/}
-                    {/*            <span className="text-xs text-muted-foreground">{alert.time}</span>*/}
-                    {/*        </AlertDescription>*/}
-                    {/*    </Alert>*/}
-                    {/*))}*/}
-                </CardContent>
             </Card>
         </div>
     )

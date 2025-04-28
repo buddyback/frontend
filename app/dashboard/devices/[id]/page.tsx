@@ -67,7 +67,6 @@ const DevicePage = () => {
                     >
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="statistics">Statistics</TabsTrigger>
-                        <TabsTrigger value="settings">Settings</TabsTrigger>
                     </TabsList>
                     <TabsContent value="overview" className="space-y-4">
                         {isSuccessDevice ? (
@@ -80,9 +79,6 @@ const DevicePage = () => {
                         <PostureChart
                             deviceId={id}
                         />
-                    </TabsContent>
-                    <TabsContent value="settings" className="space-y-4">
-                        {/*<DeviceSettings id={id}/>*/}
                     </TabsContent>
                 </Tabs>
             </div>

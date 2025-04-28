@@ -4,6 +4,7 @@ export const getDevicesQueryKey = (username: string) => [username, "devices"];
 
 export const getDeviceQueryKey = (username: string, deviceId: string) => [username, "devices", deviceId];
 
+
 export const getDevices = async () => {
     const res = await djangoInstance.get("/devices/");
     return res.data;
@@ -34,3 +35,5 @@ export const updateDevice = async (deviceId: string, deviceName: string, deviceS
     });
     return res.data;
 }
+
+

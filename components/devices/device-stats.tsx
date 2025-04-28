@@ -1,6 +1,6 @@
 'use client'
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
-import {Activity, AlertTriangle, Clock, ThumbsUp} from "lucide-react"
+import {Activity, Clock, ThumbsUp} from "lucide-react"
 import {useQuery} from "@tanstack/react-query";
 import {getDeviceStatistics, getDeviceStatisticsQueryKey} from "@/api/statistics";
 import {useSelector} from "react-redux";
