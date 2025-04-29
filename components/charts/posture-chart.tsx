@@ -3,7 +3,17 @@
 import {useMemo, useState} from "react"
 import {useSelector} from "react-redux"
 import {useQuery} from "@tanstack/react-query"
-import {formatISO, startOfDay, subDays, subWeeks} from "date-fns"
+import {
+    addDays,
+    endOfMonth,
+    endOfWeek,
+    format,
+    formatISO,
+    startOfDay,
+    startOfMonth,
+    startOfWeek,
+    subDays
+} from "date-fns"
 import {
     CartesianGrid,
     Legend,
@@ -20,12 +30,18 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {Checkbox} from "@/components/ui/checkbox"
 import {Label} from "@/components/ui/label"
+import {Button} from "@/components/ui/button"
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
+import {Calendar} from "@/components/ui/calendar"
+import {Calendar as CalendarIcon, ChevronLeft, ChevronRight} from "lucide-react"
 import {RootState} from "@/store"
 import {ChartConfig} from "../ui/chart"
 import {
     getDailyPostureData,
-    getDailyPostureDataQuery, getMonthlyPostureData,
-    getMonthlyPostureDataQuery, getWeeklyPostureData,
+    getDailyPostureDataQuery,
+    getMonthlyPostureData,
+    getMonthlyPostureDataQuery,
+    getWeeklyPostureData,
     getWeeklyPostureDataQuery
 } from "@/api/posture-data";
 
@@ -98,6 +114,14 @@ export function PostureChart({deviceId}: PostureChartProps) {
     const [activeTab, setActiveTab] = useState<TimeRange>("daily")
     const thresholdValue = 75 // Set threshold value to 75
 
+    // State for date selection
+    const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+    const [selectedWeekStart, setSelectedWeekStart] = useState<Date>(startOfWeek(new Date()))
+    const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
+
+    // State to handle calendar popover
+    const [calendarOpen, setCalendarOpen] = useState(false)
+
     // State to track which lines to display
     const [visibleLines, setVisibleLines] = useState<VisibleLines>({
         overall: true,
@@ -106,33 +130,33 @@ export function PostureChart({deviceId}: PostureChartProps) {
         shoulders: true
     })
 
-    // Generate date parameters based on active tab
+    // Generate date parameters based on active tab and selected dates
     const dateParams = useMemo((): DateParams => {
-        const today = new Date()
-        const formattedToday = formatISO(today, {representation: 'date'})
-
         switch (activeTab) {
             case "daily":
-                // For daily view, just use today's date
-                return {date: formattedToday}
+                // For daily view, use selected date
+                return {
+                    date: formatISO(selectedDate, {representation: 'date'})
+                }
 
             case "weekly":
-                // For weekly view, use last 7 days
-                const weekAgo = subDays(today, 6)
+                // For weekly view, use selected week
+                const weekEnd = endOfWeek(selectedWeekStart)
                 return {
-                    start_date: formatISO(startOfDay(weekAgo), {representation: 'date'}),
-                    end_date: formattedToday
+                    start_date: formatISO(startOfDay(selectedWeekStart), {representation: 'date'}),
+                    end_date: formatISO(startOfDay(weekEnd), {representation: 'date'})
                 }
 
             case "monthly":
-                // For monthly view, use last 4 weeks
-                const fourWeeksAgo = subWeeks(today, 4)
+                // For monthly view, use selected month
+                const monthStart = startOfMonth(selectedMonth)
+                const monthEnd = endOfMonth(selectedMonth)
                 return {
-                    start_date: formatISO(startOfDay(fourWeeksAgo), {representation: 'date'}),
-                    end_date: formattedToday
+                    start_date: formatISO(startOfDay(monthStart), {representation: 'date'}),
+                    end_date: formatISO(startOfDay(monthEnd), {representation: 'date'})
                 }
         }
-    }, [activeTab])
+    }, [activeTab, selectedDate, selectedWeekStart, selectedMonth])
 
     const {
         data: postureData,
@@ -158,7 +182,6 @@ export function PostureChart({deviceId}: PostureChartProps) {
             }
         },
     });
-
 
     // Process data for different time periods
     const {chartData} = useMemo(() => {
@@ -197,13 +220,161 @@ export function PostureChart({deviceId}: PostureChartProps) {
         return {chartData: formattedData};
     }, [postureData, activeTab]);
 
-
     // Toggle line visibility
     const toggleLineVisibility = (line: keyof VisibleLines) => {
         setVisibleLines(prev => ({
             ...prev,
             [line]: !prev[line]
         }))
+    }
+
+    // Date navigation handlers
+    const navigateDay = (direction: 'prev' | 'next') => {
+        setSelectedDate(prev =>
+            direction === 'prev' ? subDays(prev, 1) : addDays(prev, 1)
+        )
+    }
+
+    const navigateWeek = (direction: 'prev' | 'next') => {
+        setSelectedWeekStart(prev =>
+            direction === 'prev' ? subDays(prev, 7) : addDays(prev, 7)
+        )
+    }
+
+    const navigateMonth = (direction: 'prev' | 'next') => {
+        setSelectedMonth(prev => {
+            const newDate = new Date(prev)
+            newDate.setMonth(prev.getMonth() + (direction === 'prev' ? -1 : 1))
+            return newDate
+        })
+    }
+
+    // Calendar selection handlers
+    const handleDaySelect = (day: Date | undefined) => {
+        if (day) {
+            setSelectedDate(day)
+            setCalendarOpen(false)
+        }
+    }
+
+    const handleWeekSelect = (day: Date | undefined) => {
+        if (day) {
+            setSelectedWeekStart(startOfWeek(day))
+            setCalendarOpen(false)
+        }
+    }
+
+    const handleMonthSelect = (day: Date | undefined) => {
+        if (day) {
+            setSelectedMonth(day)
+            setCalendarOpen(false)
+        }
+    }
+
+    // Date range display formatters
+    const formatDailyDisplay = () => {
+        return format(selectedDate, 'MMMM d, yyyy')
+    }
+
+    const formatWeeklyDisplay = () => {
+        const weekEnd = endOfWeek(selectedWeekStart)
+        return `${format(selectedWeekStart, 'MMM d')} - ${format(weekEnd, 'MMM d, yyyy')}`
+    }
+
+    const formatMonthlyDisplay = () => {
+        return format(selectedMonth, 'MMMM yyyy')
+    }
+
+    // Date picker component for the active tab
+    const DatePicker = () => {
+        let dateFormatter: () => string
+        let handlePrev: () => void
+        let handleNext: () => void
+        let handleSelect: (date: Date | undefined) => void
+
+        switch (activeTab) {
+            case "daily":
+                dateFormatter = formatDailyDisplay
+                handlePrev = () => navigateDay('prev')
+                handleNext = () => navigateDay('next')
+                handleSelect = handleDaySelect
+                break
+            case "weekly":
+                dateFormatter = formatWeeklyDisplay
+                handlePrev = () => navigateWeek('prev')
+                handleNext = () => navigateWeek('next')
+                handleSelect = handleWeekSelect
+                break
+            case "monthly":
+                dateFormatter = formatMonthlyDisplay
+                handlePrev = () => navigateMonth('prev')
+                handleNext = () => navigateMonth('next')
+                handleSelect = handleMonthSelect
+                break
+        }
+
+        return (
+            <div className="flex items-center justify-evenly mb-4">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrev}
+                    className="text-xs p-1 h-8 sm:p-2"
+                >
+                    <ChevronLeft className="h-4 w-4"/>
+                </Button>
+
+                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            className="flex items-center justify-center gap-2 h-8 min-w-32 sm:min-w-40"
+                        >
+                            <CalendarIcon className="h-4 w-4"/>
+                            <span className="text-xs sm:text-sm font-medium">
+                                {dateFormatter()}
+                            </span>
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="center">
+                        <Calendar
+                            mode={activeTab === "daily" ? "single" : activeTab === "weekly" ? "single" : "single"}
+                            selected={
+                                activeTab === "daily"
+                                    ? selectedDate
+                                    : activeTab === "weekly"
+                                        ? selectedWeekStart
+                                        : selectedMonth
+                            }
+                            onSelect={handleSelect}
+                            modifiers={
+                                activeTab === "weekly"
+                                    ? {
+                                        weekHighlight: (date) => {
+                                            const start = startOfWeek(selectedWeekStart)
+                                            const end = endOfWeek(selectedWeekStart)
+                                            return date >= start && date <= end
+                                        }
+                                    }
+                                    : undefined
+                            }
+                            modifiersStyles={{
+                                weekHighlight: {backgroundColor: "rgba(37, 99, 235, 0.1)"}
+                            }}
+                        />
+                    </PopoverContent>
+                </Popover>
+
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleNext}
+                    className="text-xs p-1 h-8 sm:p-2"
+                >
+                    <ChevronRight className="h-4 w-4"/>
+                </Button>
+            </div>
+        )
     }
 
     // Line toggle checkboxes component
@@ -349,9 +520,10 @@ export function PostureChart({deviceId}: PostureChartProps) {
                             <TabsTrigger value="monthly" className="text-xs sm:text-sm">Monthly</TabsTrigger>
                         </TabsList>
 
-                        <div
-                            className={"grid items-center justify-center mt-4"}
-                        >
+                        {/* Date picker for selected range */}
+                        <DatePicker/>
+
+                        <div className="grid items-center justify-center mt-2">
                             <LineToggles/>
                         </div>
 
