@@ -51,7 +51,6 @@ const ChangeProfileDataForm = ({user}: ChangeProfileDataFormProps) => {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("Submitting form with new email:", newEmail);
         changeProfileDataMutation.mutate();
     }
 

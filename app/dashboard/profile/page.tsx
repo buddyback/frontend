@@ -9,6 +9,7 @@ import {User} from "@/interfaces";
 import ChangeProfileDataForm from "@/components/dashboard/profile/change-profile-data-form";
 import {Button} from "@/components/ui/button";
 import {useRouter} from "next/navigation";
+import ChangePasswordForm from "@/components/dashboard/profile/change-password-form";
 
 
 const ProfilePage = () => {
@@ -69,6 +70,9 @@ const ProfilePage = () => {
                     user={user}
                 />
             ) : null}
+
+            <ChangePasswordForm />
+
         </div>
     );
 };
