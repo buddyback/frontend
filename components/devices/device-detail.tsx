@@ -1,10 +1,9 @@
 'use client'
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card"
-import {Badge} from "@/components/ui/badge"
 import {Device, DeviceSession} from "@/interfaces";
 import {dateParser} from "@/utils/date-parser";
 import {Slider} from "@/components/ui/slider";
-import {useState} from "react";
+import React, {useState} from "react";
 import {Button} from "@/components/ui/button";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {getDeviceQueryKey, getDevicesQueryKey, unclaimDevice, updateDevice} from "@/api/devices";
@@ -32,6 +31,8 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {useRouter} from "next/navigation";
+import IsOnlineBadge from "@/components/badges/is-online-badge";
+import {HoverCard, HoverCardContent, HoverCardTrigger,} from "@/components/ui/hover-card"
 
 
 interface DeviceDetailProps {
@@ -46,6 +47,7 @@ export function DeviceDetail({device}: DeviceDetailProps) {
     const [temDeviceSensitivity, setTemDeviceSensitivity] = useState(device.sensitivity);
     const [temDeviceVibrationIntensity, setTemDeviceVibrationIntensity] = useState(device.vibration_intensity);
     const [tempDeviceName, setTemDeviceName] = useState(device.name);
+    const [isOnline, setIsOnline] = useState(false);
 
     const [isEditingName, setIsEditingName] = useState(false);
 
@@ -138,18 +140,30 @@ export function DeviceDetail({device}: DeviceDetailProps) {
 
                         {isSuccessDeviceSession ? (
                             <div className="grid gap-4">
-                                <Button
-                                    disabled={handleSessionMutation.isPending}
-                                    onClick={() => handleSessionMutation.mutate(deviceSession.session_active)}
-                                    variant={deviceSession.session_active ? "outline" : "accent"}
-                                >
-                                    {deviceSession.session_active ? (
-                                        <div className={"flex items-center"}>
-                                            <div className={"bg-red-500 rounded-full w-3 h-3 mr-2 animate-pulse"}/>
-                                            Stop Session
-                                        </div>
-                                    ) : "Start Session"}
-                                </Button>
+                                <HoverCard>
+                                    <HoverCardTrigger
+                                        className={"w-full cursor-pointer"}
+                                    >
+                                        <Button
+                                            disabled={handleSessionMutation.isPending || !isOnline}
+                                            onClick={() => handleSessionMutation.mutate(deviceSession.session_active)}
+                                            variant={deviceSession.session_active ? "outline" : "accent"}
+                                            className={"w-full"}
+                                        >
+                                            {deviceSession.session_active ? (
+                                                <div className={"flex items-center"}>
+                                                    <div className={"bg-red-500 rounded-full w-3 h-3 mr-2 animate-pulse"}/>
+                                                    Stop Session
+                                                </div>
+                                            ) : "Start Session"}
+                                        </Button>
+                                    </HoverCardTrigger>
+                                    {!isOnline ? (
+                                        <HoverCardContent>
+                                            Device is offline. Please check your internet connection.
+                                        </HoverCardContent>
+                                    ) : null}
+                                </HoverCard>
                             </div>
                         ) : null}
                     </CardContent>
@@ -253,10 +267,10 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                     </div>
                     <div className="flex justify-between items-center py-1 pb-4">
                         <span className="font-medium">Status</span>
-                        <Badge
-                            variant={device.is_active ? "default" : "outline"}>
-                            {device.is_active ? "Active" : "Disabled"}
-                        </Badge>
+                        <IsOnlineBadge
+                            deviceId={device.id}
+                            setIsOnline={setIsOnline}
+                        />
                     </div>
                     <div className="flex justify-between items-center py-1 pb-4">
                         <span className="font-medium">ID</span>

@@ -6,6 +6,7 @@ import {useRouter} from "next/navigation";
 import {Device} from "@/interfaces";
 import {dateParser} from "@/utils/date-parser";
 import {Badge} from "@/components/ui/badge";
+import IsOnlineBadge from "@/components/badges/is-online-badge";
 
 interface DeviceCardProps {
     device: Device;
@@ -24,24 +25,35 @@ const DeviceCard = ({device}: DeviceCardProps) => {
                     >
                         {device.name}
                     </CardTitle>
-                    <Badge
-                        variant={"outline"}
+
+                    <div
+                        className={"flex items-center gap-4"}
                     >
-                        {device.has_active_session ? (
-                            <div>
-                                <div className="flex items-center">
-                                    <div
-                                        className={"mr-2 h-2 w-2 animate-pulse rounded-full bg-red-500"}
-                                    />
-                                    <div
-                                        className={"font-semibold"}
-                                    >
-                                        Active Session
+                        <Badge
+                            variant={"outline"}
+                        >
+                            {device.has_active_session ? (
+                                <div>
+                                    <div className="flex items-center">
+                                        <div
+                                            className={"mr-2 h-2 w-2 animate-pulse rounded-full bg-red-500"}
+                                        />
+                                        <div
+                                            className={"font-semibold"}
+                                        >
+                                            In Use
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ) : "Disabled"}
-                    </Badge>
+                            ) : "Idle"}
+                        </Badge>
+
+                        <IsOnlineBadge
+                            deviceId={device.id}
+                        />
+                    </div>
+
+
                 </div>
             </CardHeader>
             <CardContent>
