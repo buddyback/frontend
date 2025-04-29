@@ -23,16 +23,10 @@ jobs:
       - name: Cache npm dependencies
         uses: actions/cache@v3
         with:
-          path: '~/.npm'
+          path: |
+            ~/.npm
+            **/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-${{ env.CACHE_NAME }}-nodemodules-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
