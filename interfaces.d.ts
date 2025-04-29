@@ -71,3 +71,9 @@ export interface Comparisons {
 export interface DeviceSession {
     session_active: boolean;
 }
+
+interface User {
+    id: number;
+    email: string;
+    username: string;
+}

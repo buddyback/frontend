@@ -11,16 +11,18 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
-import {Activity, LogOut, Settings, User} from "lucide-react"
+import {LogOut, User} from "lucide-react"
 import BaseContainer from "@/providers/base-container";
 import {useAuth} from "@/providers/auth-provider";
 import {RootState} from "@/store";
 import {useSelector} from "react-redux";
+import {useRouter} from "next/navigation";
 
 export function Navbar() {
 
     const {logout} = useAuth();
     const {username, email} = useSelector((state: RootState) => state.auth)
+    const router = useRouter();
 
     return (
         <header className="border-b">
@@ -52,19 +54,12 @@ export function Navbar() {
                                 </div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator/>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => router.push("/dashboard/profile")}
+                            >
                                 <User className="mr-2 h-4 w-4"/>
                                 <span>Profile</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Settings className="mr-2 h-4 w-4"/>
-                                <span>Settings</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Activity className="mr-2 h-4 w-4"/>
-                                <span>Activity Log</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator/>
                             <DropdownMenuItem
                                 onClick={() => logout()}
                             >

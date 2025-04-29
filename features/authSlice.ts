@@ -12,6 +12,10 @@ interface AuthSlicePayload {
     email: string;
 }
 
+interface UpdateUserPayload {
+    email: string;
+}
+
 // Define the initial state using that type
 const initialState: AuthSlice = {
     isAuthenticated: false,
@@ -32,11 +36,14 @@ export const authSlice = createSlice({
             state.isAuthenticated = false;
             state.username = "";
             state.email = "";
+        },
+        updateUser: (state, action: PayloadAction<UpdateUserPayload>) => {
+            state.email = action.payload.email;
         }
     },
 })
 
-export const {login, logout} = authSlice.actions
+export const {login, logout, updateUser} = authSlice.actions
 
 
 export default authSlice.reducer
