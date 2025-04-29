@@ -141,7 +141,7 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                                 <Button
                                     disabled={handleSessionMutation.isPending}
                                     onClick={() => handleSessionMutation.mutate(deviceSession.session_active)}
-                                    variant={deviceSession.session_active ? "outline" : "default"}
+                                    variant={deviceSession.session_active ? "outline" : "accent"}
                                 >
                                     {deviceSession.session_active ? (
                                         <div className={"flex items-center"}>
@@ -316,6 +316,7 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                 <CardFooter>
                     <Button
                         className={"mt-4"}
+                        variant={"accent"}
                         disabled={
                             temDeviceSensitivity === device.sensitivity
                             && temDeviceVibrationIntensity === device.vibration_intensity

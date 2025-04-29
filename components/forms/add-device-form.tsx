@@ -98,6 +98,7 @@ export function AddDeviceForm({open, action}: AddDeviceFormProps) {
                                 className={"cursor-pointer w-full mt-4"}
                                 type="submit"
                                 disabled={claimDeviceMutation.isPending}
+                                variant={"accent"}
                             >
                                 {claimDeviceMutation.isPending ? (
                                     <div
