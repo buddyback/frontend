@@ -5,11 +5,13 @@ interface AuthSlice {
     isAuthenticated: boolean;
     username: string;
     email: string;
+    is_staff: boolean;
 }
 
 interface AuthSlicePayload {
     username: string;
     email: string;
+    is_staff: boolean;
 }
 
 interface UpdateUserPayload {
@@ -21,6 +23,7 @@ const initialState: AuthSlice = {
     isAuthenticated: false,
     username: "",
     email: "",
+    is_staff: false,
 }
 
 export const authSlice = createSlice({
@@ -31,11 +34,13 @@ export const authSlice = createSlice({
             state.isAuthenticated = true;
             state.username = action.payload.username;
             state.email = action.payload.email;
+            state.is_staff = action.payload.is_staff;
         },
         logout: (state) => {
             state.isAuthenticated = false;
             state.username = "";
             state.email = "";
+            state.is_staff = false;
         },
         updateUser: (state, action: PayloadAction<UpdateUserPayload>) => {
             state.email = action.payload.email;
