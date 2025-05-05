@@ -40,7 +40,6 @@ const RankCard = ({rank}: RankCardProps) => {
             <CardHeader className="pb-2">
                 <CardTitle className="flex justify-between items-center">
                     <span>{rank.category}</span>
-                    <span className="text-sm font-normal text-muted-foreground">ID: {rank.id}</span>
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
