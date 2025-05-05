@@ -1,6 +1,7 @@
 import React from 'react';
 import {DeviceList} from "@/components/dashboard/device-list";
 import {Card, CardContent} from "@/components/ui/card";
+import DashboardRanks from "@/components/dashboard/dashboard-ranks";
 
 const Dashboard = () => {
     return (
@@ -11,11 +12,20 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <Card>
-                <CardContent>
-                    <DeviceList/>
-                </CardContent>
-            </Card>
+
+            <div
+                className={"grid gap-10"}
+            >
+                <DashboardRanks/>
+
+                <Card>
+                    <CardContent>
+                        <DeviceList/>
+                    </CardContent>
+                </Card>
+            </div>
+
+
         </div>
     );
 };

@@ -78,3 +78,25 @@ interface User {
     username: string;
     is_staff: boolean;
 }
+
+interface Tier {
+    id: number;
+    name: string;
+    minimum_score: number;
+}
+
+interface NextTier {
+    name: string;
+    minimum_score: number;
+    points_needed: number;
+}
+
+interface UserRank {
+    id: number;
+    user: string;
+    category: string;
+    tier: Tier;
+    current_score: number;
+    last_updated: string;
+    next_tier: NextTier;
+}
