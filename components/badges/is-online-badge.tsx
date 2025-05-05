@@ -31,7 +31,7 @@ const IsOnlineBadge = ({deviceId, setIsOnline}: IsOnlineBadgeProps) => {
     } = useQuery({
         queryKey: isDeviceAliveQueryKey(username, deviceId),
         queryFn: () => getIsDeviceAlive(deviceId),
-        refetchInterval: 3000,
+        refetchInterval: 40 * 1000, // 40 seconds interval
     })
 
     if (isLoadingIsAlive) {
