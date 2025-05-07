@@ -107,12 +107,13 @@ type DateParams = {
 
 interface PostureChartProps {
     deviceId: string;
+    deviceSensitivity: number;
 }
 
-export function PostureChart({deviceId}: PostureChartProps) {
+export function PostureChart({deviceId, deviceSensitivity}: PostureChartProps) {
     const {username} = useSelector((state: RootState) => state.auth)
     const [activeTab, setActiveTab] = useState<TimeRange>("daily")
-    const thresholdValue = 75 // Set threshold value to 75
+    const thresholdValue = deviceSensitivity
 
     // State for date selection
     const [selectedDate, setSelectedDate] = useState<Date>(new Date())
@@ -448,7 +449,7 @@ export function PostureChart({deviceId}: PostureChartProps) {
                             strokeWidth={2}
                             strokeDasharray="5 5"
                             label={{
-                                value: "Threshold (75)",
+                                value: `Threshold (${thresholdValue})`,
                                 position: "insideTopRight",
                                 fill: thresholdConfig.color,
                                 fontSize: 10

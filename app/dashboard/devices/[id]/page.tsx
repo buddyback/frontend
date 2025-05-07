@@ -76,9 +76,12 @@ const DevicePage = () => {
                         ) : null}
                     </TabsContent>
                     <TabsContent value="statistics" className="space-y-4">
-                        <PostureChart
-                            deviceId={id}
-                        />
+                        {isSuccessDevice ? (
+                            <PostureChart
+                                deviceId={id}
+                                deviceSensitivity={device.sensitivity}
+                            />
+                        ) : null}
                     </TabsContent>
                 </Tabs>
             </div>
