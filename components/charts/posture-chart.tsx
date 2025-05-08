@@ -103,6 +103,7 @@ type DateParams = {
     date?: string;
     start_date?: string;
     end_date?: string;
+    interval?: string;
 }
 
 interface PostureChartProps {
