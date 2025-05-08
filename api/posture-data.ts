@@ -1,11 +1,13 @@
 import { djangoInstance } from "@/config/axios-config";
 
-export const getDailyPostureDataQuery = (username: string, deviceId: string) => [
+export const getDailyPostureDataQuery = (username: string, deviceId: string, interval: string) => [
     username,
     "devices",
     deviceId,
     "posture-data",
     "daily-chart",
+    "interval",
+    interval
 ];
 
 export const getWeeklyPostureDataQuery = (username: string, deviceId: string) => [
@@ -29,6 +31,10 @@ export const getDailyPostureData = async (deviceId: string, dateParams: any = {}
 
     if (dateParams.date) {
         queryParams.append("date", dateParams.date);
+    }
+
+    if (dateParams.interval) {
+        queryParams.append("interval", dateParams.interval);
     }
 
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";

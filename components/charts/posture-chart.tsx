@@ -120,6 +120,8 @@ export function PostureChart({deviceId, deviceSensitivity}: PostureChartProps) {
     const [selectedWeekStart, setSelectedWeekStart] = useState<Date>(startOfWeek(new Date()))
     const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
 
+    const [selectedInterval, setSelectedInterval] = useState<string>("1");
+
     // State to handle calendar popover
     const [calendarOpen, setCalendarOpen] = useState(false)
 
@@ -137,7 +139,8 @@ export function PostureChart({deviceId, deviceSensitivity}: PostureChartProps) {
             case "daily":
                 // For daily view, use selected date
                 return {
-                    date: formatISO(selectedDate, {representation: 'date'})
+                    date: formatISO(selectedDate, {representation: 'date'}),
+                    interval: selectedInterval
                 }
 
             case "weekly":
@@ -157,7 +160,7 @@ export function PostureChart({deviceId, deviceSensitivity}: PostureChartProps) {
                     end_date: formatISO(startOfDay(monthEnd), {representation: 'date'})
                 }
         }
-    }, [activeTab, selectedDate, selectedWeekStart, selectedMonth])
+    }, [activeTab, selectedDate, selectedWeekStart, selectedMonth, selectedInterval])
 
     const {
         data: postureData,
@@ -167,11 +170,11 @@ export function PostureChart({deviceId, deviceSensitivity}: PostureChartProps) {
     } = useQuery<ComputedPostureData[]>({
         queryKey: [
             ...(activeTab === "daily"
-                ? getDailyPostureDataQuery(username, deviceId)
+                ? getDailyPostureDataQuery(username, deviceId, selectedInterval)
                 : activeTab === "weekly"
                     ? getWeeklyPostureDataQuery(username, deviceId)
                     : getMonthlyPostureDataQuery(username, deviceId)),
-            dateParams
+            dateParams,
         ],
         queryFn: () => {
             if (activeTab === "daily") {
@@ -380,30 +383,64 @@ export function PostureChart({deviceId, deviceSensitivity}: PostureChartProps) {
 
     // Line toggle checkboxes component
     const LineToggles = () => (
-        <div className="flex flex-wrap gap-3 mb-4 justify-center sm:justify-start">
-            {(Object.entries(chartConfig) as [keyof VisibleLines, {
-                label: string,
-                color: string
-            }][]).map(([key, config]) => (
-                <div key={key} className="flex items-center space-x-2">
-                    <Checkbox
-                        id={`toggle-${key}`}
-                        checked={visibleLines[key]}
-                        onCheckedChange={() => toggleLineVisibility(key)}
-                        className="border-2"
-                        style={{
-                            backgroundColor: visibleLines[key] ? config.color : 'transparent',
-                            borderColor: config.color
-                        }}
-                    />
-                    <Label
-                        htmlFor={`toggle-${key}`}
-                        className="text-xs sm:text-sm cursor-pointer"
-                    >
-                        {config.label}
-                    </Label>
-                </div>
-            ))}
+        <div className="flex justify-between w-full">
+            <div
+                className={"flex gap-4"}
+            >
+                {(Object.entries(chartConfig) as [keyof VisibleLines, {
+                    label: string,
+                    color: string
+                }][]).map(([key, config]) => (
+                    <div key={key} className="flex items-center space-x-2">
+                        <Checkbox
+                            id={`toggle-${key}`}
+                            checked={visibleLines[key]}
+                            onCheckedChange={() => toggleLineVisibility(key)}
+                            className="border-2"
+                            style={{
+                                backgroundColor: visibleLines[key] ? config.color : 'transparent',
+                                borderColor: config.color
+                            }}
+                        />
+                        <Label
+                            htmlFor={`toggle-${key}`}
+                            className="text-xs sm:text-sm cursor-pointer"
+                        >
+                            {config.label}
+                        </Label>
+                    </div>
+                ))}
+            </div>
+
+            {activeTab === "daily" ? (
+                <Tabs
+                    defaultValue="1"
+                    value={selectedInterval}
+                    onValueChange={setSelectedInterval}
+                >
+                    <TabsList className="flex items-center space-x-2">
+                        <TabsTrigger
+                            value="1"
+                            className="text-xs sm:text-sm"
+                        >
+                            1m
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="10"
+                            className="text-xs sm:text-sm"
+                        >
+                            10m
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="30"
+                            className="text-xs sm:text-sm"
+                        >
+                            30m
+                        </TabsTrigger>
+
+                    </TabsList>
+                </Tabs>
+            ) : null}
         </div>
     )
 
@@ -524,7 +561,7 @@ export function PostureChart({deviceId, deviceSensitivity}: PostureChartProps) {
                         {/* Date picker for selected range */}
                         <DatePicker/>
 
-                        <div className="grid items-center justify-center mt-2">
+                        <div className="flex items-center justify-center mt-2 w-full">
                             <LineToggles/>
                         </div>
 

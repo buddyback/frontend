@@ -27,11 +27,12 @@ export const getDevice = async (deviceId: string) => {
     return res.data;
 }
 
-export const updateDevice = async (deviceId: string, deviceName: string, deviceSensitivity: number, deviceVibrationIntensity: number) => {
+export const updateDevice = async (deviceId: string, deviceName: string, deviceSensitivity: number, deviceVibrationIntensity: number, deviceAudioIntensity: number) => {
     const res = await djangoInstance.patch(`/devices/${deviceId}/`, {
         name: deviceName,
         sensitivity: deviceSensitivity,
         vibration_intensity: deviceVibrationIntensity,
+        audio_intensity: deviceAudioIntensity,
     });
     return res.data;
 }

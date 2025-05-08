@@ -13,6 +13,7 @@ export interface Device {
     is_active: boolean;
     sensitivity: number;
     vibration_intensity: number;
+    audio_intensity: number;
     api_key: string;
     has_active_session: boolean;
 }

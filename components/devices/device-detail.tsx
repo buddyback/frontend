@@ -46,6 +46,7 @@ export function DeviceDetail({device}: DeviceDetailProps) {
     const queryClient = useQueryClient();
     const [temDeviceSensitivity, setTemDeviceSensitivity] = useState(device.sensitivity);
     const [temDeviceVibrationIntensity, setTemDeviceVibrationIntensity] = useState(device.vibration_intensity);
+    const [tempAudioIntensity, setTempAudioIntensity] = useState(device.audio_intensity);
     const [tempDeviceName, setTemDeviceName] = useState(device.name);
     const [isOnline, setIsOnline] = useState(false);
 
@@ -56,7 +57,8 @@ export function DeviceDetail({device}: DeviceDetailProps) {
             device.id,
             tempDeviceName,
             temDeviceSensitivity,
-            temDeviceVibrationIntensity
+            temDeviceVibrationIntensity,
+            tempAudioIntensity,
         ),
         onSuccess: async (data) => {
 
@@ -67,6 +69,7 @@ export function DeviceDetail({device}: DeviceDetailProps) {
             toast.success("Device settings updated successfully.");
             setTemDeviceSensitivity(data.sensitivity);
             setTemDeviceVibrationIntensity(data.vibration_intensity);
+            setTempAudioIntensity(data.audio_intensity);
         },
         onError: (error) => {
             console.error("Error updating device settings:", error);
@@ -284,24 +287,46 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                             {dateParser(device.registration_date)}
                         </span>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <div className={"grid gap-2"}>
-                            <div className={"flex items-center justify-between"}>
-                                <span className="font-medium">Sensitivity</span>
-                                <div className="flex items-center">
+
+                    <div className={"grid gap-2"}>
+                        <div className={"flex items-center justify-between"}>
+                            <span className="font-medium">Sensitivity</span>
+                            <div className="flex items-center">
                                 <span
                                     className="text-muted-foreground text-xs sm:text-sm truncate ml-2"
                                 >
                                     {temDeviceSensitivity}%
                                 </span>
+                            </div>
+                        </div>
+                        <Slider
+                            defaultValue={[temDeviceSensitivity]}
+                            max={100}
+                            step={1}
+                            onValueChange={(value) => {
+                                setTemDeviceSensitivity(value[0]);
+                            }}
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className={"grid gap-2"}>
+                            <div className={"flex items-center justify-between"}>
+                                <span className="font-medium">Audio Volume</span>
+                                <div className="flex items-center">
+                                <span
+                                    className="text-muted-foreground text-xs sm:text-sm truncate ml-2"
+                                >
+                                    {tempAudioIntensity}%
+                                </span>
                                 </div>
                             </div>
                             <Slider
-                                defaultValue={[temDeviceSensitivity]}
+                                defaultValue={[tempAudioIntensity]}
                                 max={100}
                                 step={1}
                                 onValueChange={(value) => {
-                                    setTemDeviceSensitivity(value[0]);
+                                    setTempAudioIntensity(value[0]);
                                 }}
                             />
                         </div>
@@ -335,6 +360,7 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                             temDeviceSensitivity === device.sensitivity
                             && temDeviceVibrationIntensity === device.vibration_intensity
                             && tempDeviceName === device.name
+                            && tempAudioIntensity === device.audio_intensity
                             || updateDeviceSettingsMutation.isPending
                         }
                         onClick={() => updateDeviceSettingsMutation.mutate()}
