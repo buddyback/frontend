@@ -288,48 +288,68 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                         </span>
                     </div>
 
-                    <div className={"grid gap-2"}>
-                        <div className={"flex items-center justify-between"}>
-                            <span className="font-medium">Sensitivity</span>
-                            <div className="flex items-center">
+                    {/*<div className={"grid gap-2"}>*/}
+                    {/*    <div className={"flex items-center justify-between"}>*/}
+                    {/*        <span className="font-medium">Sensitivity</span>*/}
+                    {/*        <div className="flex items-center">*/}
+                    {/*            <span*/}
+                    {/*                className="text-muted-foreground text-xs sm:text-sm truncate ml-2"*/}
+                    {/*            >*/}
+                    {/*                {temDeviceSensitivity}%*/}
+                    {/*            </span>*/}
+                    {/*        </div>*/}
+                    {/*    </div>*/}
+                    {/*    <Slider*/}
+                    {/*        defaultValue={[temDeviceSensitivity]}*/}
+                    {/*        max={100}*/}
+                    {/*        step={1}*/}
+                    {/*        onValueChange={(value) => {*/}
+                    {/*            setTemDeviceSensitivity(value[0]);*/}
+                    {/*        }}*/}
+                    {/*    />*/}
+                    {/*</div>*/}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className={"grid gap-2"}>
+                            <div className={"flex items-center justify-between"}>
+                                <span className="font-medium">Sensitivity</span>
+                                <div className="flex items-center">
                                 <span
                                     className="text-muted-foreground text-xs sm:text-sm truncate ml-2"
                                 >
                                     {temDeviceSensitivity}%
                                 </span>
-                            </div>
-                        </div>
-                        <Slider
-                            defaultValue={[temDeviceSensitivity]}
-                            max={100}
-                            step={1}
-                            onValueChange={(value) => {
-                                setTemDeviceSensitivity(value[0]);
-                            }}
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <div className={"grid gap-2"}>
-                            <div className={"flex items-center justify-between"}>
-                                <span className="font-medium">Audio Volume</span>
-                                <div className="flex items-center">
-                                <span
-                                    className="text-muted-foreground text-xs sm:text-sm truncate ml-2"
-                                >
-                                    {tempAudioIntensity}%
-                                </span>
                                 </div>
                             </div>
                             <Slider
-                                defaultValue={[tempAudioIntensity]}
+                                defaultValue={[temDeviceSensitivity]}
                                 max={100}
                                 step={1}
                                 onValueChange={(value) => {
-                                    setTempAudioIntensity(value[0]);
+                                    setTemDeviceSensitivity(value[0]);
                                 }}
                             />
                         </div>
+                        {/*<div className={"grid gap-2"}>*/}
+                        {/*    <div className={"flex items-center justify-between"}>*/}
+                        {/*        <span className="font-medium">Audio Volume</span>*/}
+                        {/*        <div className="flex items-center">*/}
+                        {/*        <span*/}
+                        {/*            className="text-muted-foreground text-xs sm:text-sm truncate ml-2"*/}
+                        {/*        >*/}
+                        {/*            {tempAudioIntensity}%*/}
+                        {/*        </span>*/}
+                        {/*        </div>*/}
+                        {/*    </div>*/}
+                        {/*    <Slider*/}
+                        {/*        defaultValue={[tempAudioIntensity]}*/}
+                        {/*        max={100}*/}
+                        {/*        step={1}*/}
+                        {/*        onValueChange={(value) => {*/}
+                        {/*            setTempAudioIntensity(value[0]);*/}
+                        {/*        }}*/}
+                        {/*    />*/}
+                        {/*</div>*/}
                         <div className={"grid gap-2"}>
                             <div className={"flex items-center justify-between"}>
                                 <span className="font-medium">Vibration Intensity</span>
@@ -360,7 +380,7 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                             temDeviceSensitivity === device.sensitivity
                             && temDeviceVibrationIntensity === device.vibration_intensity
                             && tempDeviceName === device.name
-                            && tempAudioIntensity === device.audio_intensity
+                            // && tempAudioIntensity === device.audio_intensity
                             || updateDeviceSettingsMutation.isPending
                         }
                         onClick={() => updateDeviceSettingsMutation.mutate()}
