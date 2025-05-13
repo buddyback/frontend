@@ -84,6 +84,7 @@ export function DeviceDetail({device}: DeviceDetailProps) {
     } = useQuery<DeviceSession>({
         queryKey: getDeviceSessionStatusQueryKey(username, device.id),
         queryFn: () => getDeviceSessionStatus(device.id),
+        refetchInterval: 1800000,
     })
 
     const handleSessionMutation = useMutation({
@@ -155,7 +156,8 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                                         >
                                             {deviceSession.session_active ? (
                                                 <div className={"flex items-center"}>
-                                                    <div className={"bg-red-500 rounded-full w-3 h-3 mr-2 animate-pulse"}/>
+                                                    <div
+                                                        className={"bg-red-500 rounded-full w-3 h-3 mr-2 animate-pulse"}/>
                                                     Stop Session
                                                 </div>
                                             ) : "Start Session"}
