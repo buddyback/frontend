@@ -149,18 +149,24 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                                         className={"w-full cursor-pointer"}
                                     >
                                         <Button
-                                            disabled={handleSessionMutation.isPending || !isOnline}
-                                            onClick={() => handleSessionMutation.mutate(deviceSession.session_active)}
-                                            variant={deviceSession.session_active ? "outline" : "accent"}
+                                            disabled={handleSessionMutation.isPending || !isOnline || deviceSession.is_idle}
+                                            onClick={() => handleSessionMutation.mutate(deviceSession.has_active_session)}
+                                            variant={deviceSession.has_active_session ? "outline" : "accent"}
                                             className={"w-full"}
                                         >
-                                            {deviceSession.session_active ? (
+                                            {deviceSession.has_active_session && !deviceSession.is_idle ? (
                                                 <div className={"flex items-center"}>
                                                     <div
                                                         className={"bg-red-500 rounded-full w-3 h-3 mr-2 animate-pulse"}/>
                                                     Stop Session
                                                 </div>
-                                            ) : "Start Session"}
+                                            ) : deviceSession.has_active_session && deviceSession.is_idle ? (
+                                                <div className={"flex items-center"}>
+                                                    <div
+                                                        className={"bg-yellow-500 rounded-full w-3 h-3 mr-2"}/>
+                                                    Idle Session
+                                                </div>
+                                            ) : `Start Session`}
                                         </Button>
                                     </HoverCardTrigger>
                                     {!isOnline ? (

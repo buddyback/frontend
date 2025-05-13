@@ -32,7 +32,7 @@ const DeviceCard = ({device}: DeviceCardProps) => {
                         <Badge
                             variant={"outline"}
                         >
-                            {device.has_active_session ? (
+                            {device.has_active_session && !device.is_idle? (
                                 <div>
                                     <div className="flex items-center">
                                         <div
@@ -45,7 +45,7 @@ const DeviceCard = ({device}: DeviceCardProps) => {
                                         </div>
                                     </div>
                                 </div>
-                            ) : "Idle"}
+                            ) : device.has_active_session && device.is_idle ? "Idle" : "Standby"}
                         </Badge>
 
                         <IsOnlineBadge

@@ -16,6 +16,7 @@ export interface Device {
     audio_intensity: number;
     api_key: string;
     has_active_session: boolean;
+    is_idle: boolean;
 }
 
 export interface PostureRecord {
@@ -70,7 +71,8 @@ export interface Comparisons {
 }
 
 export interface DeviceSession {
-    session_active: boolean;
+    has_active_session: boolean;
+    is_idle: boolean;
 }
 
 interface User {
