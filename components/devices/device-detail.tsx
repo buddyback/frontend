@@ -8,7 +8,7 @@ import {Button} from "@/components/ui/button";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {getDeviceQueryKey, getDevicesQueryKey, unclaimDevice, updateDevice} from "@/api/devices";
 import {toast} from "sonner";
-import {Loader2Icon, PencilIcon, XIcon} from "lucide-react";
+import {Loader2Icon, PencilIcon, StopCircle, XIcon} from "lucide-react";
 import {useSelector} from "react-redux";
 import {RootState} from "@/store";
 import {
@@ -34,6 +34,7 @@ import {useRouter} from "next/navigation";
 import IsOnlineBadge from "@/components/badges/is-online-badge";
 import {HoverCard, HoverCardContent, HoverCardTrigger,} from "@/components/ui/hover-card"
 
+import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert"
 
 interface DeviceDetailProps {
     device: Device;
@@ -142,6 +143,22 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                             </div>
                         ) : null}
 
+                        {isSuccessDeviceSession && deviceSession.is_idle ? (
+                            <Alert
+                                variant={"warning"}
+                            >
+                                <StopCircle className="h-4 w-4"/>
+                                <AlertTitle>
+                                    Device is idle
+                                </AlertTitle>
+                                <AlertDescription>
+                                    The device has not detected any activity for a while. The normal session will resume
+                                    once it detects activity again.
+                                </AlertDescription>
+                            </Alert>
+                        ) : null}
+
+
                         {isSuccessDeviceSession ? (
                             <div className="grid gap-4">
                                 <HoverCard>
@@ -149,22 +166,16 @@ export function DeviceDetail({device}: DeviceDetailProps) {
                                         className={"w-full cursor-pointer"}
                                     >
                                         <Button
-                                            disabled={handleSessionMutation.isPending || !isOnline || deviceSession.is_idle}
+                                            disabled={handleSessionMutation.isPending || !isOnline}
                                             onClick={() => handleSessionMutation.mutate(deviceSession.has_active_session)}
                                             variant={deviceSession.has_active_session ? "outline" : "accent"}
                                             className={"w-full"}
                                         >
-                                            {deviceSession.has_active_session && !deviceSession.is_idle ? (
+                                            {deviceSession.has_active_session ? (
                                                 <div className={"flex items-center"}>
                                                     <div
                                                         className={"bg-red-500 rounded-full w-3 h-3 mr-2 animate-pulse"}/>
                                                     Stop Session
-                                                </div>
-                                            ) : deviceSession.has_active_session && deviceSession.is_idle ? (
-                                                <div className={"flex items-center"}>
-                                                    <div
-                                                        className={"bg-yellow-500 rounded-full w-3 h-3 mr-2"}/>
-                                                    Idle Session
                                                 </div>
                                             ) : `Start Session`}
                                         </Button>
