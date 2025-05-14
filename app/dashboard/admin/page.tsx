@@ -139,14 +139,50 @@ const AdminPanel = () => {
 
     const addDeviceMutation = useMutation({
         mutationFn: () => {
-            return djangoInstance.post("/devices/")
+            return djangoInstance.post("/devices/", {}, {
+                responseType: 'blob'
+            });
         },
-        onSuccess: () => {
+        onSuccess: (response) => {
+            if (response.data instanceof Blob) {
+                const url = window.URL.createObjectURL(response.data);
+                const link = document.createElement('a');
+                link.href = url;
+
+                let filename = 'device.png'; // Default filename
+
+                // Headers in axios are case-insensitive and accessible via response.headers
+                const contentDisposition = response.headers['content-disposition'] ||
+                    response.headers['Content-Disposition'];
+
+                if (contentDisposition) {
+                    // Using regex to extract filename from quotes
+                    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                    const matches = filenameRegex.exec(contentDisposition);
+                    if (matches != null && matches[1]) {
+                        // Remove quotes if present
+                        filename = matches[1].replace(/['"]/g, '');
+                    }
+                }
+
+                link.setAttribute('download', filename);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+
+                // Optionally notify user
+                console.log(`Device QR code downloaded as ${filename}`);
+            }
+
             queryClient.invalidateQueries({
                 queryKey: getUnclaimedDevicesQueryKey(),
-            })
+            });
+        },
+        onError: (error) => {
+            console.error("Failed to add device:", error);
         }
-    })
+    });
 
     return (
         <div>
@@ -159,10 +195,10 @@ const AdminPanel = () => {
                 <h2 className="text-3xl font-bold tracking-tight">Admin Panel</h2>
             </div>
 
-            <div className="my-10 grid gap-10">
+            <div className="my-10 flex flex-col gap-10">
                 <Card>
                     <CardHeader>
-                        <div className={"flex items-center justify-between"}>
+                        <div className={"flex items-center justify-between gap-10"}>
                             <div>
                                 <CardTitle>Unclaimed Devices</CardTitle>
                                 <CardDescription>
@@ -196,12 +232,14 @@ const AdminPanel = () => {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {isSuccessRegisteredUsers ? (
-                            <DataTable
-                                columns={registeredUsersColumns}
-                                data={registeredUsers}
-                            />
-                        ) : null}
+                        <div>
+                            {isSuccessRegisteredUsers ? (
+                                <DataTable
+                                    columns={registeredUsersColumns}
+                                    data={registeredUsers}
+                                />
+                            ) : null}
+                        </div>
                     </CardContent>
                 </Card>
             </div>
