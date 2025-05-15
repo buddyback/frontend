@@ -17,6 +17,8 @@ import {useAuth} from "@/providers/auth-provider";
 import {RootState} from "@/store";
 import {useSelector} from "react-redux";
 import {useRouter} from "next/navigation";
+import Image from "next/image";
+import buddyBack from "@/assets/buddyback.svg"
 
 export function Navbar() {
 
@@ -29,7 +31,12 @@ export function Navbar() {
             <BaseContainer>
                 <div className="flex h-16 items-center justify-between py-4">
                     <div className="flex items-center gap-2">
-                        <Link href="/dashboard" className="items-center space-x-2">
+                        <Link href="/dashboard" className={"flex gap-2 items-center"}>
+                            <Image
+                                src={buddyBack}
+                                alt={"buddyback logo"}
+                                className="h-8 w-8"
+                            />
                             <span className="font-bold sm:inline-block">BuddyBack</span>
                         </Link>
                     </div>
