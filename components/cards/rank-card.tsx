@@ -2,12 +2,36 @@ import React from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Progress} from "@/components/ui/progress";
 import {UserRank} from "@/interfaces";
+import Image from "next/image";
+import BronzeRank from "@/assets/icons/BRONZE.svg"
+import SilverRank from "@/assets/icons/SILVER.svg"
+import GoldRank from "@/assets/icons/GOLD.svg"
+import PlatinumRank from "@/assets/icons/PLATINUM.svg"
+import DiamondRank from "@/assets/icons/DIAMOND.svg"
 
 interface RankCardProps {
     rank: UserRank;
 }
 
 const RankCard = ({rank}: RankCardProps) => {
+
+    const rankIcon = (): string => {
+        switch (rank.tier.name) {
+            case "BRONZE":
+                return BronzeRank;
+            case "SILVER":
+                return SilverRank;
+            case "GOLD":
+                return GoldRank;
+            case "PLATINUM":
+                return PlatinumRank;
+            case "DIAMOND":
+                return DiamondRank;
+            default:
+                return BronzeRank;
+        }
+    }
+
     // Calculate progress percentage
     const calculateProgress = () => {
         if (!rank.next_tier) return 100;
@@ -44,9 +68,19 @@ const RankCard = ({rank}: RankCardProps) => {
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
-                    <div className="font-medium text-lg">
-                        {rank.tier.name === "NONE" ? "Unranked" : rank.tier.name}
+                    <div
+                        className="flex items-center justify-center gap-2"
+                    >
+                        <Image
+                            src={rankIcon()}
+                            alt={`rank-${rank.tier.name}`}
+                            className="h-8 w-8"
+                        />
+                        <div className="font-medium text-lg">
+                            {rank.tier.name === "NONE" ? "Unranked" : rank.tier.name}
+                        </div>
                     </div>
+
                     <div className="text-sm font-medium">
                         Score: {rank.current_score}
                     </div>
@@ -54,7 +88,7 @@ const RankCard = ({rank}: RankCardProps) => {
 
                 <div className="space-y-3">
                     <div className="space-y-1">
-                        <Progress value={calculateProgress()} className="h-2" />
+                        <Progress value={calculateProgress()} className="h-2"/>
                         <div className="flex justify-between text-xs text-muted-foreground">
                             <span>{rank.tier.name} ({rank.tier.minimum_score})</span>
                             <span>{rank.next_tier.name} ({rank.next_tier.minimum_score})</span>
