@@ -21,11 +21,11 @@ const DeviceCard = ({device}: DeviceCardProps) => {
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                     <CardTitle
-                        className={"text-2xl"}
+                        className={"text-2xl truncate"}
+                        title={device.name}
                     >
-                        {device.name}
+                        {device.name.length > 20 ? `${device.name.substring(0, 20)}...` : device.name}
                     </CardTitle>
-
                     <div
                         className={"flex items-center gap-4"}
                     >
@@ -52,8 +52,6 @@ const DeviceCard = ({device}: DeviceCardProps) => {
                             deviceId={device.id}
                         />
                     </div>
-
-
                 </div>
             </CardHeader>
             <CardContent>

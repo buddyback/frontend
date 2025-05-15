@@ -27,7 +27,7 @@ export function Navbar() {
     const router = useRouter();
 
     return (
-        <header className="border-b">
+        <header className="border-b bg-white">
             <BaseContainer>
                 <div className="flex h-16 items-center justify-between py-4">
                     <div className="flex items-center gap-2">
