@@ -3,6 +3,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Progress} from "@/components/ui/progress";
 import {UserRank} from "@/interfaces";
 import Image from "next/image";
+import NoneRank from "@/assets/icons/NONE.svg"
 import BronzeRank from "@/assets/icons/BRONZE.svg"
 import SilverRank from "@/assets/icons/SILVER.svg"
 import GoldRank from "@/assets/icons/GOLD.svg"
@@ -28,7 +29,7 @@ const RankCard = ({rank}: RankCardProps) => {
             case "DIAMOND":
                 return DiamondRank;
             default:
-                return BronzeRank;
+                return NoneRank;
         }
     }
 
