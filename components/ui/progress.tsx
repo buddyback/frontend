@@ -1,31 +1,65 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import * as ProgressPrimitive from "@radix-ui/react-progress"
+import * as React from "react";
+import { Progress as ProgressPrimitive } from "@base-ui-components/react/progress";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 function Progress({
   className,
-  value,
+  children,
   ...props
 }: React.ComponentProps<typeof ProgressPrimitive.Root>) {
   return (
     <ProgressPrimitive.Root
       data-slot="progress"
       className={cn(
-        "bg-teal-600/20 relative h-2 w-full overflow-hidden rounded-full",
+        "relative grid grid-cols-1 gap-1 overflow-hidden has-data-[slot='progress-label']:grid-cols-2",
         className
       )}
       {...props}
     >
-      <ProgressPrimitive.Indicator
-        data-slot="progress-indicator"
-        className="bg-teal-600 h-full w-full flex-1 transition-all"
-        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-      />
+      {children}
+      <ProgressPrimitive.Track
+        data-slot="progress-track"
+        className="bg-secondary col-span-full block h-2 w-full overflow-hidden rounded-full"
+      >
+        <ProgressPrimitive.Indicator
+          data-slot="progress-indicator"
+          className="bg-primary block transition-all duration-500"
+        />
+      </ProgressPrimitive.Track>
     </ProgressPrimitive.Root>
-  )
+  );
 }
 
-export { Progress }
+function ProgressLabel({
+  className,
+  ...props
+}: React.ComponentProps<typeof ProgressPrimitive.Label>) {
+  return (
+    <ProgressPrimitive.Label
+      data-slot="progress-label"
+      className={cn("text-foreground text-sm font-medium", className)}
+      {...props}
+    />
+  );
+}
+
+function ProgressValue({
+  className,
+  ...props
+}: React.ComponentProps<typeof ProgressPrimitive.Value>) {
+  return (
+    <ProgressPrimitive.Value
+      data-slot="progress-value"
+      className={cn(
+        "text-foreground text-right text-sm font-medium",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+export { Progress, ProgressValue, ProgressLabel };

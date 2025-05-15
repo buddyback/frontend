@@ -1,6 +1,6 @@
 import React from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Progress} from "@/components/ui/progress";
+import {Progress, ProgressLabel, ProgressValue} from "@/components/ui/progress";
 import {UserRank} from "@/interfaces";
 import Image from "next/image";
 import NoneRank from "@/assets/icons/NONE.svg"
@@ -9,6 +9,7 @@ import SilverRank from "@/assets/icons/SILVER.svg"
 import GoldRank from "@/assets/icons/GOLD.svg"
 import PlatinumRank from "@/assets/icons/PLATINUM.svg"
 import DiamondRank from "@/assets/icons/DIAMOND.svg"
+
 
 interface RankCardProps {
     rank: UserRank;
@@ -68,7 +69,7 @@ const RankCard = ({rank}: RankCardProps) => {
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col items-start gap-2 lg:flex-row  justify-between lg:items-center">
                     <div
                         className="flex items-center justify-center gap-2"
                     >
@@ -87,20 +88,24 @@ const RankCard = ({rank}: RankCardProps) => {
                     </div>
                 </div>
 
-                <div className="space-y-3">
-                    <div className="space-y-1">
-                        <Progress value={calculateProgress()} className="h-2"/>
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>{rank.tier.name} ({rank.tier.minimum_score})</span>
-                            <span>{rank.next_tier.name} ({rank.next_tier.minimum_score})</span>
-                        </div>
-                    </div>
-                </div>
+                <Progress
+                    value={calculateProgress()}
+                    className={"my-6"}
+                >
+                    <ProgressLabel
+                        className={"text-xs md:text-sm"}
+                    >
+                        To {rank.next_tier.name.toLowerCase()}
+                    </ProgressLabel>
+                    <ProgressValue
+                        className={"text-xs md:text-sm"}
+                    />
+                </Progress>
 
-                <div className="space-y-2 pt-2 border-t border-gray-100">
-                    <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Last Updated:</span>
-                        <span>{formatDate(rank.last_updated)}</span>
+                <div>
+                    <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">Last Update:</span>
+                        <span>{formatDate(rank.last_updated).split(",")[0]}</span>
                     </div>
                 </div>
             </CardContent>
