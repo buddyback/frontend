@@ -11,6 +11,7 @@ import {useAuth} from "@/providers/auth-provider";
 import {useMutation} from "@tanstack/react-query";
 import {djangoInstance} from "@/config/axios-config";
 import {toast} from "sonner";
+import {Typewriter} from "@/components/ui/typewriter-text";
 
 export function LoginForm() {
 
@@ -61,7 +62,18 @@ export function LoginForm() {
     return (
         <div className={"grid gap-10"}>
             <div className={""}>
-                <h1 className="text-2xl font-bold text-center">Welcome to BuddyBack</h1>
+                <div
+                    className={"flex justify-center"}
+                >
+                    <Typewriter
+                        text={["Welcome to BuddyBack"]}
+                        speed={100}
+                        loop={true}
+                        className="text-2xl font-bold"
+                    />
+                </div>
+
+                {/*<h1 className="text-2xl font-bold text-center">Welcome to BuddyBack</h1>*/}
                 <p className="text-sm text-muted-foreground text-center">
                     Enter your credentials to access your account
                 </p>
