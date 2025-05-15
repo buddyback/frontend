@@ -384,7 +384,7 @@ export function PostureChart({deviceId, deviceSensitivity}: PostureChartProps) {
 
     // Line toggle checkboxes component
     const LineToggles = () => (
-        <div className="flex justify-between w-full">
+        <div className="flex flex-col lg:flex-row justify-between items-center gap-4 w-full">
             <div
                 className={"flex gap-4"}
             >
@@ -413,35 +413,38 @@ export function PostureChart({deviceId, deviceSensitivity}: PostureChartProps) {
                 ))}
             </div>
 
-            {activeTab === "daily" ? (
-                <Tabs
-                    defaultValue="1"
-                    value={selectedInterval}
-                    onValueChange={setSelectedInterval}
-                >
-                    <TabsList className="flex items-center space-x-2">
-                        <TabsTrigger
-                            value="1"
-                            className="text-xs sm:text-sm"
-                        >
-                            1m
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="10"
-                            className="text-xs sm:text-sm"
-                        >
-                            10m
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="30"
-                            className="text-xs sm:text-sm"
-                        >
-                            30m
-                        </TabsTrigger>
+            <div>
+                {activeTab === "daily" ? (
+                    <Tabs
+                        defaultValue="1"
+                        value={selectedInterval}
+                        onValueChange={setSelectedInterval}
+                    >
+                        <TabsList className="flex items-center space-x-2">
+                            <TabsTrigger
+                                value="1"
+                                className="text-xs sm:text-sm"
+                            >
+                                1m
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="10"
+                                className="text-xs sm:text-sm"
+                            >
+                                10m
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="30"
+                                className="text-xs sm:text-sm"
+                            >
+                                30m
+                            </TabsTrigger>
 
-                    </TabsList>
-                </Tabs>
-            ) : null}
+                        </TabsList>
+                    </Tabs>
+                ) : null}
+            </div>
+
         </div>
     )
 
@@ -541,13 +544,13 @@ export function PostureChart({deviceId, deviceSensitivity}: PostureChartProps) {
     }
 
     return (
-        <div className="space-y-4">
-            <Card>
-                <CardHeader className="sm:px-6 px-4">
-                    <CardTitle className="text-xl sm:text-2xl">Posture Statistics</CardTitle>
-                    <CardDescription className="text-sm sm:text-base">View your posture data over time</CardDescription>
-                </CardHeader>
-                <CardContent className="sm:px-6 px-3">
+        <Card>
+            <CardHeader className="sm:px-6 px-4">
+                <CardTitle className="text-xl sm:text-2xl">Posture Statistics</CardTitle>
+                <CardDescription className="text-sm sm:text-base">View your posture data over time</CardDescription>
+            </CardHeader>
+            <CardContent className="sm:px-6 px-3">
+                <div className="flex">
                     <Tabs
                         value={activeTab}
                         className="w-full"
@@ -590,8 +593,8 @@ export function PostureChart({deviceId, deviceSensitivity}: PostureChartProps) {
                             </div>
                         ) : null}
                     </Tabs>
-                </CardContent>
-            </Card>
-        </div>
+                </div>
+            </CardContent>
+        </Card>
     )
 }
