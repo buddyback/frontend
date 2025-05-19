@@ -94,7 +94,7 @@ const DashboardRanks = () => {
                         <button
                             key={index}
                             className={`h-2 rounded-full transition-all ${
-                                index === current ? "w-4 bg-primary" : "w-2 bg-gray-300"
+                                index === current ? "w-4 bg-teal-600" : "w-2 bg-gray-300"
                             }`}
                             onClick={() => api?.scrollTo(index)}
                             aria-label={`Go to slide ${index + 1}`}

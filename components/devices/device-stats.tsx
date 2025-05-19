@@ -59,25 +59,25 @@ export function DeviceStats({device}: DeviceStatsProps) {
     const statsCards = [
         {
             title: "Total Usage",
-            icon: <Clock className="h-6 w-6 text-teal-500"/>,
+            icon: <Clock className="h-6 w-6 text-teal-600"/>,
             value: `${secondsParser(deviceStats.summary.total_seconds).hours}h ${secondsParser(deviceStats.summary.total_seconds).minutes}m`,
             subtitle: `from ${dateParser(device.registration_date)}`
         },
         {
             title: "Average Usage",
-            icon: <ChartAreaIcon className="h-6 w-6 text-teal-500"/>,
+            icon: <ChartAreaIcon className="h-6 w-6 text-teal-600"/>,
             value: `${secondsParser(deviceStats.summary.average_session_seconds).hours}h ${secondsParser(deviceStats.summary.average_session_seconds).minutes}m`,
             subtitle: "for each session"
         },
         {
             title: "Total Sessions",
-            icon: <Layers className="h-6 w-6 text-teal-500"/>,
+            icon: <Layers className="h-6 w-6 text-teal-600"/>,
             value: deviceStats.summary.total_sessions,
             subtitle: `from ${dateParser(device.registration_date)}`
         },
         {
             title: "Consistency Score",
-            icon: <ThumbsUp className="h-6 w-6 text-teal-500"/>,
+            icon: <ThumbsUp className="h-6 w-6 text-teal-600"/>,
             value: deviceStats.summary.consistency_score,
             subtitle: `${deviceStats.summary.current_streak_days} days streak`
         }
@@ -119,7 +119,7 @@ export function DeviceStats({device}: DeviceStatsProps) {
                         <button
                             key={index}
                             className={`h-2 rounded-full transition-all ${
-                                index === current ? "w-4 bg-primary" : "w-2 bg-gray-300"
+                                index === current ? "w-4 bg-teal-600" : "w-2 bg-gray-300"
                             }`}
                             onClick={() => api?.scrollTo(index)}
                             aria-label={`Go to slide ${index + 1}`}
