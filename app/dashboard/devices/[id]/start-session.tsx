@@ -14,6 +14,7 @@ import {getDeviceStatisticsQueryKey} from "@/api/statistics";
 import {useSelector} from "react-redux";
 import {RootState} from "@/store";
 import Link from "next/link";
+import {Badge} from "@/components/ui/badge";
 
 
 interface StartSessionProps {
@@ -61,7 +62,7 @@ const StartSession = ({device, isOnline}: StartSessionProps) => {
         <div
             className={"flex items-center justify-between w-full"}
         >
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center gap-4">
                 <div
                     className="flex items-center gap-2"
                 >
@@ -73,45 +74,54 @@ const StartSession = ({device, isOnline}: StartSessionProps) => {
                     <h2 className="text-3xl font-bold">{device.name}</h2>
                 </div>
 
-                {isSuccessDeviceSession ? (
-                    <HoverCard>
-                        <HoverCardTrigger
-                            className={"w-full cursor-pointer p-4"}
+                <div>
+                    {isSuccessDeviceSession ? (
+                        <Badge
+                            variant={"outline"}
                         >
-                            {
-                                deviceSession.has_active_session && deviceSession.is_idle ? (
-                                    <div
-                                        className="flex items-center gap-2 bg-yellow-500 h-2 w-2 animate-pulse rounded-full"/>
-                                ) : deviceSession.has_active_session ? (
-                                    <div
-                                        className="flex items-center gap-2 bg-teal-500 h-2 w-2 animate-pulse rounded-full"/>
-                                ) : (
-                                    <div
-                                        className="flex items-center gap-2 bg-destructive h-2 w-2 rounded-full"/>
-                                )
-                            }
-                        </HoverCardTrigger>
-                        <HoverCardContent>
-                            {
-                                deviceSession.has_active_session && deviceSession.is_idle ? (
-                                    <div>
-                                        The device has not detected any activity for a while. The normal session will
-                                        resume
-                                        once it detects activity again.
+                            {deviceSession.has_active_session && !deviceSession.is_idle? (
+                                <div>
+                                    <div className="flex items-center">
+                                        <div
+                                            className={"mr-2 h-2 w-2 animate-pulse rounded-full bg-teal-500"}
+                                        />
+                                        <div
+                                            className={"font-semibold"}
+                                        >
+                                            In Use
+                                        </div>
                                     </div>
-                                ) : deviceSession.has_active_session ? (
-                                    <div>
-                                        The device has an active session.
+                                </div>
+                            ) : deviceSession.has_active_session && deviceSession.is_idle ? (
+                                <div>
+                                    <div className="flex items-center">
+                                        <div
+                                            className={"mr-2 h-2 w-2 animate-pulse rounded-full bg-yellow-500"}
+                                        />
+                                        <div
+                                            className={"font-semibold"}
+                                        >
+                                            Idle
+                                        </div>
                                     </div>
-                                ) : (
-                                    <div>
-                                        The device has no active session.
+                                </div>
+                            ) : (
+                                <div>
+                                    <div className="flex items-center">
+                                        <div
+                                            className={"mr-2 h-2 w-2 rounded-full bg-destructive"}
+                                        />
+                                        <div
+                                            className={"font-semibold"}
+                                        >
+                                            Standby
+                                        </div>
                                     </div>
-                                )
-                            }
-                        </HoverCardContent>
-                    </HoverCard>
-                ) : null}
+                                </div>
+                            )}
+                        </Badge>
+                    ) : null}
+                </div>
             </div>
             <div className="flex items-center gap-2">
                 {isLoadingDeviceSession ? (
@@ -134,13 +144,11 @@ const StartSession = ({device, isOnline}: StartSessionProps) => {
                                 <Button
                                     disabled={handleSessionMutation.isPending || !isOnline}
                                     onClick={() => handleSessionMutation.mutate(deviceSession.has_active_session)}
-                                    variant={deviceSession.has_active_session ? "outline" : "accent"}
+                                    variant={deviceSession.has_active_session ? "destructive" : "accent"}
                                     className={"w-full"}
                                 >
                                     {deviceSession.has_active_session ? (
                                         <div className={"flex items-center"}>
-                                            <div
-                                                className={"bg-red-500 rounded-full w-3 h-3 mr-2 animate-pulse"}/>
                                             Stop Session
                                         </div>
                                     ) : `Start Session`}
