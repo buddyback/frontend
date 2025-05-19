@@ -6,7 +6,11 @@ import {useRouter} from "next/navigation";
 import {Device} from "@/interfaces";
 import {dateParser} from "@/utils/date-parser";
 import {Badge} from "@/components/ui/badge";
-import IsOnlineBadge from "@/components/badges/is-online-badge";
+import {djangoInstance} from "@/config/axios-config";
+import {useQuery} from "@tanstack/react-query";
+import {isDeviceAliveQueryKey} from "@/api/device-sessions";
+import {RootState} from "@/store";
+import {useSelector} from "react-redux";
 
 interface DeviceCardProps {
     device: Device;
@@ -15,6 +19,30 @@ interface DeviceCardProps {
 const DeviceCard = ({device}: DeviceCardProps) => {
 
     const router = useRouter()
+    const {username} = useSelector((state: RootState) => state.auth)
+
+    const getIsDeviceAlive = async (deviceId: string) => {
+        const res = await djangoInstance.get(`/devices/${deviceId}/is-alive/`);
+        return res.data.is_alive;
+    }
+
+    const {
+        data: isAlive,
+        isLoading: isLoadingIsAlive,
+        isError: isErrorIsAlive,
+        isSuccess: isSuccessIsAlive,
+    } = useQuery<boolean>({
+        queryKey: isDeviceAliveQueryKey(username, device.id),
+        queryFn: () => getIsDeviceAlive(device.id),
+        refetchInterval: 20 * 1000, // 40 seconds interval
+    })
+
+    if (isLoadingIsAlive) {
+        return
+    }
+    if (isErrorIsAlive) {
+        return
+    }
 
     return (
         <Card className="overflow-hidden">
@@ -29,54 +57,58 @@ const DeviceCard = ({device}: DeviceCardProps) => {
                     <div
                         className={"flex items-center gap-4"}
                     >
-                        <Badge
-                            variant={"outline"}
-                        >
-                            {device.has_active_session && !device.is_idle? (
-                                <div>
-                                    <div className="flex items-center">
-                                        <div
-                                            className={"mr-2 h-2 w-2 animate-pulse rounded-full bg-teal-500"}
-                                        />
-                                        <div
-                                            className={"font-semibold"}
-                                        >
-                                            In Use
+                        {isSuccessIsAlive && isAlive ? (
+                            <Badge
+                                variant={"outline"}
+                            >
+                                {device.has_active_session && !device.is_idle ? (
+                                    <div>
+                                        <div className="flex items-center">
+                                            <div
+                                                className={"mr-2 h-2 w-2 animate-pulse rounded-full bg-teal-500"}
+                                            />
+                                            <div
+                                                className={"font-semibold"}
+                                            >
+                                                In Use
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ) : device.has_active_session && device.is_idle ? (
-                                <div>
-                                    <div className="flex items-center">
-                                        <div
-                                            className={"mr-2 h-2 w-2 animate-pulse rounded-full bg-yellow-500"}
-                                        />
-                                        <div
-                                            className={"font-semibold"}
-                                        >
-                                            Idle
+                                ) : device.has_active_session && device.is_idle ? (
+                                    <div>
+                                        <div className="flex items-center">
+                                            <div
+                                                className={"mr-2 h-2 w-2 animate-pulse rounded-full bg-yellow-500"}
+                                            />
+                                            <div
+                                                className={"font-semibold"}
+                                            >
+                                                Idle
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ) : (
-                                <div>
-                                    <div className="flex items-center">
-                                        <div
-                                            className={"mr-2 h-2 w-2 rounded-full bg-destructive"}
-                                        />
-                                        <div
-                                            className={"font-semibold"}
-                                        >
-                                            Standby
+                                ) : (
+                                    <div>
+                                        <div className="flex items-center">
+                                            <div
+                                                className={"mr-2 h-2 w-2 rounded-full bg-destructive"}
+                                            />
+                                            <div
+                                                className={"font-semibold"}
+                                            >
+                                                Standby
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
-                        </Badge>
-
-                        <IsOnlineBadge
-                            deviceId={device.id}
-                        />
+                                )}
+                            </Badge>
+                        ) : (
+                            <Badge
+                                variant={"destructive"}
+                            >
+                                Offline
+                            </Badge>
+                        )}
                     </div>
                 </div>
             </CardHeader>
