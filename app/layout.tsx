@@ -5,6 +5,7 @@ import {Toaster} from "@/components/ui/sonner"
 import ReduxProvider from "@/providers/redux-provider";
 import ReactQueryProvider from "@/providers/react-query-provider";
 import {AuthProvider} from "@/providers/auth-provider";
+import {AuthLoading} from "@/providers/auth-loading";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -34,8 +35,10 @@ export default function RootLayout({
         <ReduxProvider>
             <ReactQueryProvider>
                 <AuthProvider>
-                    {children}
-                    <Toaster/>
+                    <AuthLoading>
+                        {children}
+                        <Toaster/>
+                    </AuthLoading>
                 </AuthProvider>
             </ReactQueryProvider>
         </ReduxProvider>

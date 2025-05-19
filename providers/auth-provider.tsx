@@ -4,8 +4,7 @@ import React, {createContext, useContext, useEffect, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {djangoInstance} from "@/config/axios-config";
 import {useMutation} from "@tanstack/react-query";
-import {login as reduxLogin} from "@/features/authSlice";
-import {logout as reduxLogout} from "@/features/authSlice";
+import {login as reduxLogin, logout as reduxLogout} from "@/features/authSlice";
 import {useDispatch} from "react-redux";
 import {toast} from "sonner";
 
@@ -31,6 +30,7 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
     const router = useRouter();
     const pathname = usePathname()
     const dispatch = useDispatch();
+    const [initialLoading, setInitialLoading] = useState(true);
 
     // Function to fetch user data
     const fetchUser = async () => {
@@ -48,6 +48,8 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
         } catch (e) {
             setUser(null);
             dispatch(reduxLogout());
+        } finally {
+            setInitialLoading(false);
         }
         setLoading(false);
     };
@@ -107,7 +109,7 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
     }, [user, router]);
 
     return (
-        <AuthContext.Provider value={{user, loading, login, logout}}>
+        <AuthContext.Provider value={{user, loading: initialLoading || loading, login, logout}}>
             {children}
         </AuthContext.Provider>
     );
