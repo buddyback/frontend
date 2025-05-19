@@ -62,7 +62,7 @@ const RankCard = ({rank}: RankCardProps) => {
     };
 
     return (
-        <Card className="shadow-md">
+        <Card>
             <CardHeader className="pb-2">
                 <CardTitle className="flex justify-between items-center">
                     <span>{rank.category}</span>

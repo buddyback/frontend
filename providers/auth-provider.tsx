@@ -61,7 +61,7 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
         },
         onSuccess: async () => {
             await fetchUser();
-            router.push("/dashboard");
+            router.replace("/dashboard");
         },
         onError: () => {
             setUser(null);
@@ -104,7 +104,7 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
     // Redirect user to /dashboard if they are already authenticated and try to access the login page
     useEffect(() => {
         if (user && pathname === "/") {
-            router.push("/dashboard");
+            router.replace("/dashboard");
         }
     }, [user, router]);
 
