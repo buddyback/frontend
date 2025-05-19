@@ -125,6 +125,13 @@ export function AddDeviceForm({open, action}: AddDeviceFormProps) {
         }
     };
 
+    // Add this useEffect to stop scanning when dialog closes
+    useEffect(() => {
+        // When dialog closes, stop scanner if it's active
+        if (!open && isScanning) {
+            stopScanner();
+        }
+    }, [open, isScanning]);
 
     useEffect(() => {
         // Clean up scanner when component unmounts
@@ -220,25 +227,27 @@ export function AddDeviceForm({open, action}: AddDeviceFormProps) {
                                 </div>
                             )}
 
-                            <Button
-                                className={"cursor-pointer w-full mt-4"}
-                                type="submit"
-                                disabled={claimDeviceMutation.isPending}
-                                variant={"accent"}
-                            >
-                                {claimDeviceMutation.isPending ? (
-                                    <div
-                                        className={"flex items-center justify-center"}
-                                    >
-                                        <Loader2Icon
-                                            className={"animate-spin text-center"}
-                                            size={20}
-                                        />
-                                        <span className="ml-2">Adding device</span>
-                                    </div>
+                            {!isScanning ? (
+                                <Button
+                                    className={"cursor-pointer w-full mt-4"}
+                                    type="submit"
+                                    disabled={claimDeviceMutation.isPending}
+                                    variant={"accent"}
+                                >
+                                    {claimDeviceMutation.isPending ? (
+                                        <div
+                                            className={"flex items-center justify-center"}
+                                        >
+                                            <Loader2Icon
+                                                className={"animate-spin text-center"}
+                                                size={20}
+                                            />
+                                            <span className="ml-2">Adding device</span>
+                                        </div>
 
-                                ) : "Add Device"}
-                            </Button>
+                                    ) : "Add Device"}
+                                </Button>
+                            ) : null}
                         </div>
                     </div>
                 </form>
