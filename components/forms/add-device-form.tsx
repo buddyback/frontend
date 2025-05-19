@@ -65,6 +65,12 @@ export function AddDeviceForm({open, action}: AddDeviceFormProps) {
 
     // Modify the startScanner function
     const startScanner = async () => {
+
+        if (isScanning) {
+            setIsScanning(false);
+            return;
+        }
+
         setError(null);
         setIsScanning(true);
 
