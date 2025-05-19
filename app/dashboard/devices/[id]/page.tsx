@@ -1,8 +1,5 @@
 'use client'
-import {Button} from '@/components/ui/button';
-import Link from 'next/link';
-import React from 'react';
-import {ChevronLeft} from "lucide-react";
+import React, {useState} from 'react';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {DeviceStats} from '@/components/devices/device-stats';
 import {DeviceDetail} from '@/components/devices/device-detail';
@@ -14,6 +11,7 @@ import {RootState} from "@/store";
 import {useQuery} from "@tanstack/react-query";
 import {Device} from "@/interfaces";
 import {getDevice, getDeviceQueryKey} from "@/api/devices";
+import StartSession from "@/app/dashboard/devices/[id]/start-session";
 
 const DevicePage = () => {
 
@@ -21,6 +19,7 @@ const DevicePage = () => {
     const {id} = params
 
     const {username} = useSelector((state: RootState) => state.auth)
+    const [isOnline, setIsOnline] = useState<boolean>(false)
 
     const {
         data: device,
@@ -43,14 +42,14 @@ const DevicePage = () => {
     return (
         <div className="flex min-h-screen flex-col">
             <div className="grid gap-10">
-                <div className="flex items-center gap-2">
-                    <Link href="/dashboard">
-                        <Button variant="ghost" size="icon">
-                            <ChevronLeft className="h-4 w-4"/>
-                        </Button>
-                    </Link>
+                <div
+                    className={"flex items-center justify-between"}
+                >
                     {isSuccessDevice ? (
-                        <h2 className="text-3xl font-bold tracking-tight">{device.name}</h2>
+                        <StartSession
+                            device={device}
+                            isOnline={isOnline}
+                        />
                     ) : null}
                 </div>
 
@@ -58,7 +57,7 @@ const DevicePage = () => {
                     <DeviceStats
                         device={device}
                     />
-                ): null}
+                ) : null}
 
 
                 <Tabs defaultValue="overview" className="space-y-4">
@@ -72,6 +71,7 @@ const DevicePage = () => {
                         {isSuccessDevice ? (
                             <DeviceDetail
                                 device={device}
+                                action={setIsOnline}
                             />
                         ) : null}
                     </TabsContent>

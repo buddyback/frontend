@@ -36,7 +36,7 @@ const DeviceCard = ({device}: DeviceCardProps) => {
                                 <div>
                                     <div className="flex items-center">
                                         <div
-                                            className={"mr-2 h-2 w-2 animate-pulse rounded-full bg-red-500"}
+                                            className={"mr-2 h-2 w-2 animate-pulse rounded-full bg-teal-500"}
                                         />
                                         <div
                                             className={"font-semibold"}
@@ -45,7 +45,33 @@ const DeviceCard = ({device}: DeviceCardProps) => {
                                         </div>
                                     </div>
                                 </div>
-                            ) : device.has_active_session && device.is_idle ? "Idle" : "Standby"}
+                            ) : device.has_active_session && device.is_idle ? (
+                                <div>
+                                    <div className="flex items-center">
+                                        <div
+                                            className={"mr-2 h-2 w-2 animate-pulse rounded-full bg-yellow-500"}
+                                        />
+                                        <div
+                                            className={"font-semibold"}
+                                        >
+                                            Idle
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <div className="flex items-center">
+                                        <div
+                                            className={"mr-2 h-2 w-2 rounded-full bg-destructive"}
+                                        />
+                                        <div
+                                            className={"font-semibold"}
+                                        >
+                                            Standby
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </Badge>
 
                         <IsOnlineBadge
