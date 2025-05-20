@@ -11,7 +11,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
-import {LogOut, User} from "lucide-react"
+import {LogOut, Moon, Sun, User} from "lucide-react"
 import BaseContainer from "@/providers/base-container";
 import {useAuth} from "@/providers/auth-provider";
 import {RootState} from "@/store";
@@ -19,15 +19,23 @@ import {useSelector} from "react-redux";
 import {useRouter} from "next/navigation";
 import Image from "next/image";
 import buddyBack from "@/assets/buddyback.svg"
+import { useTheme } from "next-themes"
+import { useEffect, useState } from "react"
 
 export function Navbar() {
-
+    const { theme, setTheme } = useTheme();
     const {logout} = useAuth();
     const {username, email, is_staff} = useSelector((state: RootState) => state.auth)
     const router = useRouter();
+    const [mounted, setMounted] = useState(false);
+
+    // Only show theme UI after hydration to avoid mismatch
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     return (
-        <header className="border-b bg-white">
+        <header className="border-b">
             <BaseContainer>
                 <div className="flex h-16 items-center justify-between py-4">
                     <div className="flex items-center gap-2">
@@ -35,9 +43,9 @@ export function Navbar() {
                             <Image
                                 src={buddyBack}
                                 alt={"buddyback logo"}
-                                className="h-8 w-8"
+                                className="h-8 w-8 dark:invert"
                             />
-                            <span className="font-bold sm:inline-block">BuddyBack</span>
+                            <span className="font-bold sm:inline-block dark:text-white">BuddyBack</span>
                         </Link>
                     </div>
                     <div
@@ -82,6 +90,18 @@ export function Navbar() {
                                     <User className="mr-2 h-4 w-4"/>
                                     <span>Profile</span>
                                 </DropdownMenuItem>
+                                {mounted && (
+                                    <DropdownMenuItem
+                                        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                    >
+                                        {theme === 'dark' ? (
+                                            <Sun className="mr-2 h-4 w-4" />
+                                        ) : (
+                                            <Moon className="mr-2 h-4 w-4" />
+                                        )}
+                                        <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+                                    </DropdownMenuItem>
+                                )}
                                 <DropdownMenuItem
                                     onClick={() => logout()}
                                 >
@@ -91,7 +111,6 @@ export function Navbar() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
-
                 </div>
             </BaseContainer>
         </header>

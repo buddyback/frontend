@@ -76,7 +76,7 @@ const RankCard = ({rank}: RankCardProps) => {
                         <Image
                             src={rankIcon()}
                             alt={`rank-${rank.tier.name}`}
-                            className="h-8 w-8"
+                            className={`h-8 w-8 ${rank.tier.name === "NONE" ? "dark:invert" : ""}`}
                         />
                         <div className="font-medium text-lg">
                             {rank.tier.name === "NONE" ? "Unranked" : rank.tier.name}

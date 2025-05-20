@@ -6,6 +6,7 @@ import ReduxProvider from "@/providers/redux-provider";
 import ReactQueryProvider from "@/providers/react-query-provider";
 import {AuthProvider} from "@/providers/auth-provider";
 import {AuthLoading} from "@/providers/auth-loading";
+import {ThemeProvider} from "@/providers/theme-provider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -28,23 +29,30 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
         <head>
-          <meta name="apple-mobile-web-app-title" content="BuddyBack" />
+            <meta name="apple-mobile-web-app-title" content="BuddyBack"/>
         </head>
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-        <ReduxProvider>
-            <ReactQueryProvider>
-                <AuthProvider>
-                    <AuthLoading>
-                        {children}
-                        <Toaster/>
-                    </AuthLoading>
-                </AuthProvider>
-            </ReactQueryProvider>
-        </ReduxProvider>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+        >
+            <ReduxProvider>
+                <ReactQueryProvider>
+                    <AuthProvider>
+                        <AuthLoading>
+                            {children}
+                            <Toaster/>
+                        </AuthLoading>
+                    </AuthProvider>
+                </ReactQueryProvider>
+            </ReduxProvider>
+        </ThemeProvider>
         </body>
         </html>
     );
