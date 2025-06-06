@@ -5,7 +5,7 @@ import {dateParser} from "@/utils/date-parser";
 import {Slider} from "@/components/ui/slider";
 import React, {useState} from "react";
 import {Button} from "@/components/ui/button";
-import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {getDeviceQueryKey, getDevicesQueryKey, unclaimDevice, updateDevice} from "@/api/devices";
 import {toast} from "sonner";
 import {Loader2Icon, PencilIcon, XIcon} from "lucide-react";
@@ -24,7 +24,8 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {useRouter} from "next/navigation";
-import IsOnlineBadge from "@/components/badges/is-online-badge";
+import {djangoInstance} from "@/config/axios-config";
+import {isDeviceAliveQueryKey} from "@/api/device-sessions";
 
 interface DeviceDetailProps {
     device: Device;
@@ -79,6 +80,20 @@ export function DeviceDetail({device, action}: DeviceDetailProps) {
         },
     })
 
+    const getIsDeviceAlive = async (deviceId: string) => {
+        const res = await djangoInstance.get(`/devices/${deviceId}/is-alive/`);
+        if (action) {
+            action(res.data.is_alive);
+        }
+        return res.data.is_alive;
+    }
+
+    useQuery({
+        queryKey: isDeviceAliveQueryKey(username, device.id),
+        queryFn: () => getIsDeviceAlive(device.id),
+        refetchInterval: 20 * 1000, // 40 seconds interval
+    })
+
     return (
         <div className="grid gap-4">
             <Card className="w-full">
@@ -124,13 +139,6 @@ export function DeviceDetail({device, action}: DeviceDetailProps) {
 
                         )}
 
-                    </div>
-                    <div className="flex justify-between items-center py-1 pb-4">
-                        <span className="font-medium">Status</span>
-                        <IsOnlineBadge
-                            deviceId={device.id}
-                            setIsOnline={action}
-                        />
                     </div>
                     <div className="flex justify-between items-center py-1 pb-4">
                         <span className="font-medium">ID</span>
@@ -250,7 +258,8 @@ export function DeviceDetail({device, action}: DeviceDetailProps) {
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            Once you remove this device, you will not be able to use it until you register
+                                            Once you remove this device, you will not be able to use it until you
+                                            register
                                             it again and
                                             all of your data will be lost. This action cannot be undone.
                                         </AlertDialogDescription>

@@ -77,9 +77,14 @@ const StartSession = ({device, isOnline}: StartSessionProps) => {
                 <div>
                     {isSuccessDeviceSession ? (
                         <Badge
-                            variant={"outline"}
+                            variant={isOnline ? "outline" : "destructive"}
                         >
-                            {deviceSession.has_active_session && !deviceSession.is_idle? (
+                            {
+                                !isOnline ? (
+                                    <div>
+                                        Offline
+                                    </div>
+                                ) : deviceSession.has_active_session && !deviceSession.is_idle? (
                                 <div>
                                     <div className="flex items-center">
                                         <div
