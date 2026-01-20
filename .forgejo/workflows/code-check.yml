@@ -22,6 +22,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 25
+
       - name: Cache npm dependencies
         uses: actions/cache@v3
         with:
