@@ -20,9 +20,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: github.com/actions/checkout@v4
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v6
+      - uses: github.com/actions/setup-node@v6
         with:
           node-version: 25
 
