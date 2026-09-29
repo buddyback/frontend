@@ -101,5 +101,5 @@ interface UserRank {
     tier: Tier;
     current_score: number;
     last_updated: string;
-    next_tier: NextTier;
+    next_tier: NextTier | null;
 }

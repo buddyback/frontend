@@ -95,7 +95,9 @@ const RankCard = ({rank}: RankCardProps) => {
                     <ProgressLabel
                         className={"text-xs md:text-sm"}
                     >
-                        To {rank.next_tier.name.toLowerCase()}
+                        {rank.next_tier
+                            ? `To ${rank.next_tier.name.toLowerCase()}`
+                            : "Max tier reached"}
                     </ProgressLabel>
                     <ProgressValue
                         className={"text-xs md:text-sm"}
