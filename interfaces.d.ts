@@ -94,6 +94,13 @@ interface NextTier {
     points_needed: number;
 }
 
+export interface PostureDateParams {
+    date?: string;
+    start_date?: string;
+    end_date?: string;
+    interval?: string;
+}
+
 interface UserRank {
     id: number;
     user: string;

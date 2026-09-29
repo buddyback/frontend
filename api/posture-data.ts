@@ -1,4 +1,5 @@
 import { djangoInstance } from "@/config/axios-config";
+import { PostureDateParams } from "@/interfaces";
 
 export const getDailyPostureDataQuery = (username: string, deviceId: string, interval: string) => [
     username,
@@ -26,7 +27,7 @@ export const getMonthlyPostureDataQuery = (username: string, deviceId: string) =
     "monthly-chart",
 ];
 
-export const getDailyPostureData = async (deviceId: string, dateParams: any = {}) => {
+export const getDailyPostureData = async (deviceId: string, dateParams: PostureDateParams = {}) => {
     const queryParams = new URLSearchParams();
 
     if (dateParams.date) {
@@ -46,7 +47,7 @@ export const getDailyPostureData = async (deviceId: string, dateParams: any = {}
     return response.data;
 };
 
-export const getWeeklyPostureData = async (deviceId: string, dateParams: any = {}) => {
+export const getWeeklyPostureData = async (deviceId: string, dateParams: PostureDateParams = {}) => {
     const queryParams = new URLSearchParams();
 
     if (dateParams.start_date) {
@@ -65,7 +66,7 @@ export const getWeeklyPostureData = async (deviceId: string, dateParams: any = {
     return response.data;
 };
 
-export const getMonthlyPostureData = async (deviceId: string, dateParams: any = {}) => {
+export const getMonthlyPostureData = async (deviceId: string, dateParams: PostureDateParams = {}) => {
     const queryParams = new URLSearchParams();
 
     if (dateParams.start_date) {
